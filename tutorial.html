@@ -1,0 +1,663 @@
+<html>
+	<head>
+		<title>Some Autobiography I'm Trying to make</title>
+	</head>
+	<body>
+		<style>body{margin:0;}</style>
+		<canvas id='ltpcanvas'></canvas>
+		<script>
+window.onload = function(){
+	init();
+	window.addEventListener('resize', init,false);
+};
+function init(){
+	var ltpc = document.getElementById('ltpcanvas');
+	var context = ltpc.getContext('2d');
+	var myWidth = window.innerWidth;
+	var myHeight = window.innerHeight;
+	context.canvas.width = myWidth;
+	context.canvas.height = myHeight;
+	context.fillStyle = '#000000';
+	context.fillRect(0,0,myWidth,myHeight);
+}
+
+var ltpc = document.getElementById('ltpcanvas');
+var context = ltpc.getContext('2d');
+var myWidth = window.innerWidth;
+var myHeight = window.innerHeight;
+
+//variables concerning loading screen
+var loadTime = 1;
+var loadFrame = loadTime % 3;
+var frame1 = new Image();
+frame1.src = 'pictures/loading1.png';
+var frame2 = new Image();
+frame2.src = 'pictures/loading2.png';
+var frame3 = new Image();
+frame3.src = 'pictures/loading3.png';
+
+// variables concerning tutorial
+steps = 1;
+
+//variables concerning player
+var xa = 14;
+var ya = 14;
+var xb = 14;
+var yb = 14;
+var ws = 1;
+var dw1 = 0;
+var hitPoints = 20;
+var toSuperJump = 0;
+var inPit = 0;
+var waterLoad = 0;
+
+// variables concerning bubble
+var bubbleOn = 0;
+var bubbelTime = 0;
+
+// variables concerning enemy
+var enemyHitPoints = 50;
+var bombEffectTimer = 0;
+var bombExploded = 0;
+var enemyOffended = 0;
+var enemyWatch = 0;
+var deathWatch = 0;
+var dead = 0;
+var retainSavage = 0;
+var enemyAction;
+var moves = ["Fire and Ice","Teleportation","Disco Ball","Pit Fall"];
+var nextMove;
+var enemyDoing;
+
+// variables concerning explosions
+var bombX;
+var bombY;
+var bombExploded = 0;
+
+// variables concerning water gun bullets
+var bulletOut = 0;
+var bulletNSEW;
+
+// variables concerning fire and ice
+var fireX;
+var fireY;
+var droneOnFire = 0;
+var droneIced = 0;
+var fireBlock = [];
+
+// variables concerning pits
+var pitX;
+var pitY;
+var pitPlaces = [];
+
+// main character
+var main = new Image();
+main.src = 'pictures/mc.png';
+//author
+var author = new Image();
+author.src = 'pictures/author.png';
+// player health bar
+var hp = new Image();
+hp.src = 'pictures/playerBar.png';
+// grave
+var grave = new Image();
+grave.src = 'pictures/grave.png';
+// enemy health bar
+var ehp = new Image();
+ehp.src = 'pictures/enemyBar.png';
+// drone without grenade
+var d0 = new Image();
+d0.src = 'pictures/d0.png';
+// drone with grenade
+var d1 = new Image();
+d1.src = 'pictures/d1.png';
+// explosion
+var explosion = new Image();
+explosion.src = 'pictures/kaboom.png'
+// text box
+var textBox= new Image();
+textBox.src = 'pictures/textBox.png'
+// fire
+var fire = new Image();
+fire.src = 'pictures/fire.png'
+// ice
+var ice = new Image();
+ice.src = 'pictures/ice.png'
+// disco ball
+var disco = new Image();
+disco.src = 'pictures/disco.png';
+// failing grade
+var failingGrade = new Image();
+failingGrade.src = 'pictures/failingGrade.png';
+// bubble
+var bubble = new Image();
+bubble.src = 'pictures/bubble.png';
+// frida
+var frida = new Image();
+frida.src = 'pictures/frida.png';
+// pit
+var pit = new Image();
+pit.src = 'pictures/pit.png';
+// virtualmc
+var virtualmc = new Image();
+virtualmc.src = 'pictures/virtualmc.png';
+// water gun
+var waterGun = new Image();
+waterGun.src = 'pictures/waterGun.png';
+// water
+var water = new Image();
+water.src = 'pictures/waterLaserBeam.png';
+
+// sounds
+var boomSound = new Audio('explosion.mp3');
+var droneDeployed = new Audio('droneDeployed.mp3');
+var fallingSounds = new Audio('fallingSounds.mp3');
+
+var pixelX = myWidth * (20 / 580);
+var pixelY = myHeight * (20 / 640);
+
+document.addEventListener("keydown",vel);
+setInterval(disp,1000/30);
+setInterval(physics,1000/30);
+setInterval(timing,1000);
+setInterval(tutor,1000/30);
+setInterval(loadingScreen,1000/4);
+
+function tutor () {
+	if (steps == 1) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press 1 to deploy drone", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 2) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press IJKL to move drone", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 3) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press Q to deploy grenade", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 4) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press 2 to open super jump", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 5) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press IJKL to set super jump location", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 6) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press Space to activate super jump", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 7) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press 3 to activate water gun", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 8) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press IJKL to fire water gun", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 9) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press WASD to move character", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 10) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press B to activate Invincibility Bubble", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 11) {
+		loadFrame = loadTime % 3;
+		if (loadFrame == 0) {
+			context.drawImage(frame1,0,0,myWidth,myHeight);
+		} else if  (loadFrame == 1) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		} else if (loadFrame == 2) {
+			context.drawImage(frame3,0,0,myWidth,myHeight);
+		}
+		location.replace("mapuaBattle.html");
+	}
+}
+
+function timing() {
+	if (enemyHitPoints > 0) {
+		enemyWatch = enemyWatch + 1;
+	}
+	if (enemyHitPoints <= 0) {
+		enemyWatch = 0;
+		dead = 1;
+		deathWatch = deathWatch + 1;
+	}
+	if (bubbleTime > 0) {
+		bubbleTime = bubbleTime - 1;
+	}
+}
+
+function disp() {
+	context.fillStyle = "grey";
+	context.fillRect(0,0,myWidth,myHeight);
+
+	//draw health bar
+	if (hitPoints >= 0) {
+	context.drawImage(hp,0*pixelX,0*pixelY,10*pixelX,3*pixelY);
+	context.fillStyle = "green";
+	context.fillRect((6 / 580) * myWidth,(25 / 640) * myHeight,hitPoints * (9.4 / 580) * myWidth,(26 / 640) * myHeight);
+	}
+
+	// draw enemy health bar
+	if (enemyHitPoints >= 0) {
+	context.drawImage(ehp,19 * pixelX,0*pixelY,10*pixelX,3*pixelY);
+	context.fillStyle = "red";
+	context.fillRect((386 / 580) * myWidth,(25 / 640) * myHeight,enemyHitPoints * (3.75 / 580) * myWidth,(26 / 640) * myHeight);
+	}
+
+	// draw 74's
+	if ((enemyDoing == 2) && (enemyWatch == 7)) {
+		context.drawImage(failingGrade,0,13*20,580,60);
+	}
+	if ((enemyDoing == 2) && (enemyWatch == 8)) {
+		context.drawImage(failingGrade,13*20,0,60,560);
+	}
+	if ((enemyDoing == 2) && (enemyWatch == 9)) {
+		context.drawImage(failingGrade,0,3*20,580,12*20);
+	}
+	if ((enemyDoing == 2) && (enemyWatch == 10)) {
+		context.drawImage(failingGrade,0,0,600,600);
+	}
+
+	// draw disco ball
+	if (enemyDoing == 2) {
+		context.drawImage(disco,13*20,13*20,60,60);
+	}
+
+	// draw frida
+	if (enemyDoing == 0) {
+		context.drawImage(frida,10*20,4*20,40,60);
+		context.drawImage(frida,17*20,4*20,40,60);
+	}
+
+	// draw text box
+	context.drawImage(textBox,0,(560 / 640) * myHeight,myWidth,(80 / 640) * myHeight);
+
+	// draw pits
+	if (enemyDoing == 3) {
+		for(var i=0;i<pitPlaces.length;i++) {
+			context.drawImage(pit,pitPlaces[i].pitX*20,pitPlaces[i].pitY*20,60,60);
+			if(((xa >= pitPlaces[i].pitX) && (xa <= pitPlaces[i].pitX + 2)) && ((ya >= pitPlaces[i].pitY) && (ya <= pitPlaces[i].pitY + 2)) && (bubbleOn == 0)) {
+         			hitPoints = hitPoints - 0.033333333333333333333333;
+				inPit = 1;
+				fallingSounds.play();
+			}
+		}
+	}
+
+	// draw author
+	if (enemyHitPoints > 0) {
+	context.drawImage(author,14*pixelX,5*pixelY,pixelX,pixelY);
+	} else {
+	context.drawImage(grave,13*20,4*20,60,60);
+	}
+
+	//draw drone
+	if ((xa == xb) && (ya == yb) && (toSuperJump == 0) && (waterLoad == 0)) {
+		context.drawImage(d1,xb*pixelX,yb*pixelY,pixelX,pixelY);
+	}
+	if ((ws == 1) && (toSuperJump == 0) && (waterLoad == 0)) {
+		context.drawImage(d1,xb*pixelX,yb*pixelY,pixelX,pixelY);
+	}
+	if ((ws == 0) && (toSuperJump == 0) && (waterLoad == 0)) {
+		context.drawImage(d0,xb*pixelX,yb*pixelY,pixelX,pixelY);
+		context.drawImage(main,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+
+	// draw fire
+	if (droneOnFire == 1) {
+		fireBlock.push({fireX:xb,fireY:yb});
+		for(var i=0;i<fireBlock.length;i++) {
+			context.drawImage(fire,fireBlock[i].fireX*20,fireBlock[i].fireY*20,20,20);
+			if((fireBlock[i].fireX==xa) && (fireBlock[i].fireY==ya) && (bubbleOn == 0)) {
+         			hitPoints = hitPoints - 0.02222222222222222222222222222;
+			}
+		}
+	}
+
+	// draw ice
+	if (droneIced == 1) {
+		context.drawImage(ice,xb*20,yb*20,20,20);
+	}
+
+	// draw main character
+	if (hitPoints > 0) {
+	context.drawImage(main,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	} else {
+	context.drawImage(grave,xa*pixelX,ya*pixelY,20,20);
+	}
+	
+	// draw bubble
+	if (bubbleOn == 1) {
+		context.drawImage(bubble,xa*pixelX,ya*pixelY,pixelX,pixelY);
+		toSuperJump = 0;
+		waterLoad = 0;
+	}
+
+	//draw virtualmc
+	if (toSuperJump == 1) {
+		context.drawImage(virtualmc,xb*pixelX,yb*pixelY,pixelX,pixelY);
+	}
+
+	//draw water gun
+	if (waterLoad == 1) {
+		xb = xa;
+		yb = ya;
+		context.drawImage(waterGun,xb*pixelX,yb*pixelY,pixelX,pixelY);
+	}
+
+	// draw explosion
+	if (bombEffectTimer > 0) {
+		//context.drawImage(explosion,bombX*20,bombY*20,60,60); 
+		context.drawImage(explosion,bombX*pixelX,bombY*pixelY,pixelX*3,pixelY*3);
+	}
+
+	// draw bullets
+	if (bulletOut > 0) {
+		if (bulletNSEW === "N") {
+			for (i = ya - 1; i > 2; i--) {
+				context.drawImage(water,xa*pixelX,i*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+		}
+		if (bulletNSEW === "S") {
+			for (i = ya + 1; i < 28; i++) {
+				context.drawImage(water,xa*pixelX,i*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+		}
+		if (bulletNSEW === "E") {
+			for (i = xa - 1; i >= 0; i--) {
+				context.drawImage(water,i*pixelX,ya*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+		}
+		if (bulletNSEW === "W") {
+			for (i = xa + 1; i < 29; i++) {
+				context.drawImage(water,i*pixelX,ya*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+		}
+	}
+
+	enemyHitPoints = 50;
+}
+
+function physics() {
+	if ((dw1 == 0) && (toSuperJump == 0)) {
+		xb = xa;
+		yb = ya;
+	}
+
+	if ((xa == xb) && (ya == yb) && (ws == 0)) {
+		ws = 1;
+		dw1 = 0;
+	}
+
+	// health
+
+	if (enemyHitPoints <= 0) {
+		enemyHitPoints = 0;
+	}
+
+	if (hitPoints <= 0) {
+		hitPoints = 0;
+	}
+
+	// explosion physics
+	if (bombExploded == 1) {
+		bombX = xb - 1;
+		bombY = yb - 1;
+		bombExploded = 0;
+		boomSound.play();
+	}
+
+	if (bombEffectTimer > 0) {
+		bombEffectTimer = bombEffectTimer - 1;
+	}
+
+	// bubble pops after 5 seconds
+	if ((bubbleTime == 0) && (bubbleOn = 1)) {
+		bubbleOn = 0;
+	}
+}
+
+function vel(event) {
+	var button = event.keyCode;
+	if (((button == 83) && (ya <= 26)) && (hitPoints > 0) && (bubbleOn == 0) && (inPit == 0)) {
+		ya = ya + 1;
+		if (steps == 9) {
+			steps = 10;
+		}
+	}
+	if (((button == 87) && (ya >= 4)) && (hitPoints > 0) && (bubbleOn == 0) && (inPit == 0)) {
+		ya = ya - 1;
+		if (steps == 9) {
+			steps = 10;
+		}
+	}
+	if (((button == 68) && (xa <= 27)) && (hitPoints > 0) && (bubbleOn == 0) && (inPit == 0)) {
+		xa = xa + 1;
+		if (steps == 9) {
+			steps = 10;
+		}
+	}
+	if (((button == 65) && (xa >= 1)) && (hitPoints > 0) && (bubbleOn == 0) && (inPit == 0)) {
+		xa = xa - 1;
+		if (steps == 9) {
+			steps = 10;
+		}
+	}
+
+	//weapon 1
+	if (button == 49) {
+		if (dw1 == 0) {
+			dw1 = 1;
+			droneDeployed.play();
+			if (steps == 1) {
+				steps = 2;
+			}
+		}
+	}
+	if (button == 81) {
+		if (((xa != xb) || (ya != yb)) && (ws == 1) && (bubbleOn == 0)) {
+		ws = 0;
+		bombEffectTimer = 10;
+		bombExploded = 1;
+		if (((xb >= xa - 1) && (xb <= xa + 1)) && ((yb >= ya - 1) && (yb <= ya + 1))) {
+			hitPoints = hitPoints - 1;
+			}
+		if (((yb >= 3) && (yb <= 7)) && ((xb >= 12) && (xb <= 16))) {
+			enemyHitPoints = enemyHitPoints - 1.5;
+			}
+		}
+		if (steps == 3) {
+			steps = 4;
+		}
+	}
+	if (((button == 75) && (yb <= 26)) && (hitPoints > 0) && (droneIced == 0) && (bubbleOn == 0) && (toSuperJump == 0)) {
+		yb = yb + 1;
+		if (steps == 2) {
+			steps = 3;
+		}
+	}
+	if (((button == 73) && (yb >= 4)) && (hitPoints > 0) && (droneIced == 0) && (bubbleOn == 0) && (toSuperJump == 0)) {
+		yb = yb - 1;
+		if (steps == 2) {
+			steps = 3;
+		}
+	}
+	if (((button == 76) && (xb <= 27)) && (hitPoints > 0) && (droneIced == 0) && (bubbleOn == 0) && (toSuperJump == 0)) {
+		xb = xb + 1;
+		if (steps == 2) {
+			steps = 3;
+		}
+	}
+	if (((button == 74) && (xb >= 1)) && (hitPoints > 0) && (droneIced == 0) && (bubbleOn == 0) && (toSuperJump == 0)) {
+		xb = xb - 1;
+		if (steps == 2) {
+			steps = 3;
+		}
+	}
+	// end of weapon 1
+
+	// weapon 2
+	if (button == 50) {
+		toSuperJump = 1;
+		waterLoad = 0;
+		if (steps == 4) {
+			steps = 5;
+		}
+	}
+	if (((button == 75) && (yb <= 26)) && (hitPoints > 0) && (droneIced == 0) && (bubbleOn == 0) && (toSuperJump == 1)) {
+		yb = yb + 1;
+		if (steps == 5) {
+			steps = 6;
+		}
+	}
+	if (((button == 73) && (yb >= 4)) && (hitPoints > 0) && (droneIced == 0) && (bubbleOn == 0) && (toSuperJump == 1)) {
+		yb = yb - 1;
+		if (steps == 5) {
+			steps = 6;
+		}
+	}
+	if (((button == 76) && (xb <= 27)) && (hitPoints > 0) && (droneIced == 0) && (bubbleOn == 0) && (toSuperJump == 1)) {
+		xb = xb + 1;
+		if (steps == 5) {
+			steps = 6;
+		}
+	}
+	if (((button == 74) && (xb >= 1)) && (hitPoints > 0) && (droneIced == 0) && (bubbleOn == 0) && (toSuperJump == 1)) {
+		xb = xb - 1;
+		if (steps == 5) {
+			steps = 6;
+		}
+	}
+	if ((button == 32) && (toSuperJump == 1)) {
+		xa = xb;
+		ya = yb;
+		toSuperJump = 0;
+		inPit = 0;
+		if (steps == 6) {
+			steps = 7;
+		}
+	}
+	// end of weapon 2
+
+	// weapon 3
+	if ((button == 51) && (hitPoints > 0)) {
+		toSuperJump = 0;
+		waterLoad = 1;
+		if (steps == 7) {
+			steps = 8;
+		}
+	}
+	if ((button == 73) && (waterLoad == 1) && (hitPoints > 0)) {
+		if (((xa >= 13) && (xa <= 15)) && (ya >=4)) {
+			enemyHitPoints = enemyHitPoints - 0.5;
+		}
+		waterLoad = 0;
+		bulletOut = 30;
+		bulletNSEW = "N";
+		if (steps == 8) {
+			steps = 9;
+		}
+	}
+	if ((button == 75) && (waterLoad == 1) && (hitPoints > 0)) {
+		if ((xa >= 13) && (xa <= 15) && (ya == 3)) {
+			enemyHitPoints = enemyHitPoints - 0.5;
+		}
+		waterLoad = 0;
+		bulletOut = 30;
+		bulletNSEW = "S";
+		if (steps == 8) {
+			steps = 9;
+		}
+	}
+	if ((button == 74) && (waterLoad == 1) && (hitPoints > 0)) {
+		if ((ya >= 4) && (ya <= 6) && (xa >= 13)) {
+			enemyHitPoints = enemyHitPoints - 0.5;
+		}
+		waterLoad = 0;
+		bulletOut = 30;
+		bulletNSEW = "E";
+		if (steps == 8) {
+			steps = 9;
+		}
+	}
+	if ((button == 76) && (waterLoad == 1) && (hitPoints > 0)) {
+		if ((ya >= 4) && (ya <= 6) && (xa <= 15)) {
+			enemyHitPoints = enemyHitPoints - 0.5;
+		}
+		waterLoad = 0;
+		bulletOut = 30;
+		bulletNSEW = "W";
+		if (steps == 8) {
+			steps = 9;
+		}
+	}
+	// end of weapon 3
+
+	// shield a.k.a. bubble
+	if (button == 66) {
+		if (bubbleOn == 0) {
+			bubbleOn = 1;
+			bubbleTime = 5;
+		} else {
+			bubbleOn = 0;
+		}
+		if (steps == 10) {
+			steps = 11;
+		}
+	}
+	// end of shield
+
+	// restart mechanism
+	if (button == 82) {
+		xa = 14;
+		ya = 14;
+		xb = 14;
+		yb = 14;
+		ws = 1;
+		dw1 = 0;
+		hitPoints = 20;
+		enemyHitPoints = 50;
+		bombEffectTimer = 0;
+		bombExploded = 0;
+		enemyWatch = 0;
+		enemyMove = 0;
+		enemyOffended = 0;
+		droneOnFire = 0;
+		droneIced = 0;
+		fireBlock = [];
+		enemyDoing = 99;
+		deathWatch = 0;
+		bubbleOn = 0;
+		pitPlaces = [];
+		inPit = 0;
+		waterLoad = 0;
+	}
+	// end of restart mechanism
+
+}
+
+function loadingScreen() {
+	loadTime += 1;
+}
+		</script>
+	</body>
+</html>

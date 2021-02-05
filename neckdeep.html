@@ -1,0 +1,558 @@
+<html>
+	<head>
+		<title>Some Autobiography I'm Trying to make</title>
+	</head>
+	<body>
+		<style>body{margin:0;}</style>
+		<canvas id='ltpcanvas'></canvas>
+			<script>
+window.onload = function(){
+	init();
+	window.addEventListener('resize', init,false);
+};
+function init(){
+	var ltpc = document.getElementById('ltpcanvas');
+	var context = ltpc.getContext('2d');
+	var myWidth = window.innerWidth;
+	var myHeight = window.innerHeight;
+	context.canvas.width = myWidth;
+	context.canvas.height = myHeight;
+	context.fillStyle = '#000000';
+	context.fillRect(0,0,myWidth,myHeight);
+}
+
+	var ltpc = document.getElementById('ltpcanvas');
+	var context = ltpc.getContext('2d');
+	var myWidth = window.innerWidth;
+	var myHeight = window.innerHeight;
+	context.canvas.width = myWidth;
+	context.canvas.height = myHeight;
+
+var pixelX = myWidth * (20 / 580);
+var pixelY = myHeight * (20 / 640);
+
+// variables concerning player
+var xa = 14;
+var ya = 14;
+var xb = 14;
+var yb = 14;
+var ws = 1;
+var dw1 = 0;
+var hitPoints = 20;
+var toSuperJump = 0;
+var waterLoad = 0;
+var faceDirection = 'N';
+var turnL = 0;
+var turnR = 0;
+var critShot = 0;
+var directions = ['N','S','E','W'];
+var reload = 0;
+
+// variables concerning enemy
+var xBen = 14;
+var yBen = 10;
+var enemyHitPoints = 30;
+var impSpeech = 0;
+var deathScript = 0;
+
+// switch from Neck Deep to Slipneck
+// nightmare variable triggers Neck Deep's Slipneck state
+var nightmare = 0;
+var realityTime = 0;
+
+// flames
+var fireX;
+var fireY;
+var fireTiles = [];
+
+// mercy
+var mercy = 0;
+
+// variables concerning explosions
+var bombX;
+var bombY;
+var bombExploded = 0;
+var bombEffectTimer = 0;
+
+// variables concerning water gun bullets
+var bulletOut = 0;
+var bulletNSEW;
+
+// main character
+var main = new Image();
+main.src = 'pictures/mc.png';
+// main character Nortn
+var mainN = new Image();
+mainN.src = 'pictures/mcN.png';
+// main character South
+var mainS = new Image();
+mainS.src = 'pictures/mcS.png';
+// main character East
+var mainE = new Image();
+mainE.src = 'pictures/mcE.png';
+// main character West
+var mainW = new Image();
+mainW.src = 'pictures/mcW.png';
+// Ben Barlow
+var slipneck = new Image();
+slipneck.src = 'pictures/slipneck.png';
+var neckdeep = new Image();
+neckdeep.src = 'pictures/neckdeep.png';
+var jumpsuit = new Image();
+jumpsuit.src = 'pictures/jumpsuit.png';
+var skatersuit = new Image();
+skatersuit.src = 'pictures/skatersuit.png';
+// player health bar
+var hp = new Image();
+hp.src = 'pictures/playerBar.png';
+// grave
+var grave = new Image();
+grave.src = 'pictures/grave.png';
+// enemy health bar
+var ehp = new Image();
+ehp.src = 'pictures/enemyBar.png';
+// drone without grenade
+var d0 = new Image();
+d0.src = 'pictures/d0.png';
+// drone with grenade
+var d1 = new Image();
+d1.src = 'pictures/d1.png';
+// explosion
+var explosion = new Image();
+explosion.src = 'pictures/kaboom.png';
+// text box
+var textBox= new Image();
+textBox.src = 'pictures/textBox.png';
+// bubble
+var bubble = new Image();
+bubble.src = 'pictures/bubble.png';
+// virtualmc
+var virtualmc = new Image();
+virtualmc.src = 'pictures/virtualmc.png';
+// water gun
+var waterGun = new Image();
+waterGun.src = 'pictures/waterGun.png';
+// water
+var water = new Image();
+water.src = 'pictures/waterLaserBeam.png';
+// fire
+var fire = new Image();
+fire.src = 'pictures/fire.png';
+
+// sounds
+var boomSound = new Audio('explosion.mp3');
+var droneDeployed = new Audio('droneDeployed.mp3');
+// var music = new Audio('portalToInsanity.mp3');
+// var music = new Audio('music.mp3');
+
+//variables concerning loading screen
+var loadTime = 1;
+var loadFrame = loadTime % 4;
+var frame1 = new Image();
+frame1.src = 'pictures/loading1.png';
+var frame2 = new Image();
+frame2.src = 'pictures/loading2.png';
+var frame3 = new Image();
+frame3.src = 'pictures/loading3.png';
+
+document.addEventListener("keydown",vel);
+document.addEventListener("keypress",vel);
+setInterval(disp,1000/30);
+setInterval(physics,1000/30);
+setInterval(timing,1000);
+setInterval(suckWater,1000/15);
+setInterval(loadingScreen,1000/20);
+setInterval(realitySwitch,1000);
+
+function suckWater() {
+	if (reload < 20) {
+		reload = reload + 1;
+	}
+}
+
+function timing() {
+	// impromptu speech
+	impSpeech = impSpeech + 1;
+
+	// death script
+	if (enemyHitPoints <= 0 ) {
+		deathScript = deathScript + 1;
+	}
+
+	// mercy timer
+	if (mercy < 200) {
+		mercy = mercy + 1;
+	}
+}
+
+function disp() {
+	context.fillStyle = "grey";
+	context.fillRect(0,0,myWidth,myHeight);
+
+	//draw health bar
+	if (hitPoints >= 0) {
+	context.fillStyle = "green";
+	context.fillRect((6 / 580) * myWidth,(25 / 640) * myHeight,(hitPoints / 20) * ((10 * pixelX) - (6 / 580) * myWidth),(26 / 640) * myHeight);
+	context.drawImage(hp,0*pixelX,0*pixelY,10*pixelX,3*pixelY);
+	}
+
+	// draw enemy health bar
+	if (enemyHitPoints >= 0) {
+	context.drawImage(ehp,19 * pixelX,0*pixelY,10*pixelX,3*pixelY);
+	context.fillStyle = "red";
+	context.fillRect((386 / 580) * myWidth,(25 / 640) * myHeight,enemyHitPoints * (6.25 / 580) * myWidth,(26 / 640) * myHeight);
+	}
+
+	// draw text box
+	context.drawImage(textBox,0,(560 / 640) * myHeight,myWidth,(80 / 640) * myHeight);
+
+	// draw introduction
+	if (impSpeech == 0) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("Sup! We're Neck Deep from Wales.", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (impSpeech == 1) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("Here's a little song we've got.", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (impSpeech == 2) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("It's called YOUR BLOODY DOOM!!!", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (impSpeech == 3) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("It's our best song yet!", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (impSpeech == 4) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("sound check 123", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (impSpeech == 5) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("Hit it, West!", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+
+	// draw Ben
+	if (enemyHitPoints > 0) {
+		if (nightmare == 1) {
+			context.drawImage(slipneck,(xBen-0.5)*pixelX,(yBen-4)*pixelY,pixelX*2,pixelY*3);
+			context.drawImage(jumpsuit,xBen*pixelX,(yBen-1)*pixelY,pixelX,2*pixelY);
+		} else if (nightmare == 0) {
+			context.drawImage(neckdeep,(xBen-0.5)*pixelX,(yBen-4)*pixelY,pixelX*2,pixelY*3);
+			context.drawImage(skatersuit,xBen*pixelX,(yBen-1)*pixelY,pixelX,2*pixelY);
+		}
+	} else {
+		context.drawImage(grave,xBen*pixelX,yBen*pixelY,pixelX,pixelY);
+	}
+
+	// draw main character
+	if ((faceDirection === directions[0]) && (hitPoints > 0)) {
+		context.drawImage(mainN,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+	if ((faceDirection === directions[1]) && (hitPoints > 0)) {
+		context.drawImage(mainS,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+	if ((faceDirection === directions[2]) && (hitPoints > 0)) {
+		context.drawImage(mainE,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+	if ((faceDirection === directions[3]) && (hitPoints > 0)) {
+		context.drawImage(mainW,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+
+	// draw flames of flamethrower
+	for (var i=0;i<fireTiles.length;i++) {
+		context.drawImage(fire,fireTiles[i].fireX*pixelX,fireTiles[i].fireY*pixelY,pixelX,pixelY);
+		if((fireTiles[i].fireX==xa) && (fireTiles[i].fireY==ya)) {
+        	hitPoints = hitPoints - (1/30);
+		}
+	}
+
+	// draw explosion
+	if (bombEffectTimer > 0) {
+		context.drawImage(explosion,bombX*pixelX,bombY*pixelY,pixelX*3,pixelY*3);
+	}
+
+	// draw bullets
+	if ((bulletOut > 0) && (reload > 5)) {
+		if (bulletNSEW === "N") {
+			if ((ya > yBen - 4) && (xa >= xBen - 1) && (xa <= xBen + 1)) {
+				enemyHitPoints = enemyHitPoints - 1;
+			}
+			for (i = ya - 1; i > 2; i--) {
+				context.drawImage(water,xa*pixelX,i*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+				reload = 0;
+			}
+		}
+		if (bulletNSEW === "S") {
+			if ((ya < yBen) && (xa >= xBen - 1) && (xa <= xBen + 1)) {
+				enemyHitPoints = enemyHitPoints - 1;
+			}
+			for (i = ya + 1; i < 28; i++) {
+				context.drawImage(water,xa*pixelX,i*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+            	reload = 0;
+			}
+		}
+		if (bulletNSEW === "W") {
+			if ((xa >= xBen) && (ya <= yBen) && (ya >= yBen - 4)) {
+				enemyHitPoints = enemyHitPoints - 1;
+			}
+			for (i = xa - 1; i >= 0; i--) {
+				context.drawImage(water,i*pixelX,ya*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+            	reload = 0;
+			}
+		}
+		if (bulletNSEW === "E") {
+			if ((xa <= xBen) && (ya <= yBen) && (ya >= yBen - 4)) {
+				enemyHitPoints = enemyHitPoints - 1;
+			}
+			for (i = xa + 1; i < 29; i++) {
+				context.drawImage(water,i*pixelX,ya*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+            	reload = 0;
+			}
+		}
+	}
+
+	// music
+	// if (typeof music.loop == 'boolean') {
+	// 	music.loop = true;
+	// 	music.volume = 0.7;
+	// } else {
+	// 	music.addEventListener('ended', function() {
+	// 		music.currentTime = 0;
+	// 		music.play();
+	// 	}, false);
+	// }
+	// music.play();
+  
+	// draw player death text
+	if (hitPoints <= 0) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("You died. Press R to restart.", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+
+	// win text
+	if ((deathScript == 1) && (enemyHitPoints <= 0) && (hitPoints > 0)) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("OH NO! WE'VE LOST!", (10 / 20) * pixelX, (585 / 20) * pixelY);		
+	}
+	if ((deathScript == 2) && (enemyHitPoints <= 0) && (hitPoints > 0)) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("What?! Jay broke his finger again?!", (10 / 20) * pixelX, (585 / 20) * pixelY);		
+	}
+	if ((deathScript == 3) && (enemyHitPoints <= 0) && (hitPoints > 0)) {	
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("You win this time.", (10 / 20) * pixelX, (585 / 20) * pixelY);	
+	}
+	if ((deathScript == 4) && (enemyHitPoints <= 0) && (hitPoints > 0)) {	
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("Show's over.", (10 / 20) * pixelX, (585 / 20) * pixelY);	
+	}
+	if ((deathScript == 5) && (enemyHitPoints <= 0) && (hitPoints > 0)) {	
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("We're just gonna head on out", (10 / 20) * pixelX, (585 / 20) * pixelY);	
+	}
+	if ((deathScript == 6) && (enemyHitPoints <= 0) && (hitPoints > 0)) {	
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("and make our next album.", (10 / 20) * pixelX, (585 / 20) * pixelY);	
+	}
+	if ((deathScript == 7) && (enemyHitPoints <= 0) && (hitPoints > 0)) {
+		loadFrame = loadTime % 4;
+		if (loadFrame == 0) {
+			context.drawImage(frame1,0,0,myWidth,myHeight);
+		} else if  (loadFrame == 1) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		} else if (loadFrame == 2) {
+			context.drawImage(frame3,0,0,myWidth,myHeight);
+		} else if (loadFrame == 3) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		}
+		location.replace("./p6.html");
+	}
+
+	// mercy text
+	if ((mercy == 180) && (enemyHitPoints >= 15) && (hitPoints > 0)) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("Thanks for the mercy.", (10 / 20) * pixelX, (585 / 20) * pixelY);		
+	}
+	if ((mercy == 181) && (enemyHitPoints >= 15) && (hitPoints > 0)) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("We'll let you go.", (10 / 20) * pixelX, (585 / 20) * pixelY);		
+	}
+    if ((mercy == 182) && (enemyHitPoints >= 15) && (hitPoints > 0)) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("Stay lit, fam!", (10 / 20) * pixelX, (585 / 20) * pixelY);		
+	}
+	if ((mercy >= 183) && (enemyHitPoints >= 15) && (hitPoints > 0)) {
+		loadFrame = loadTime % 4;
+		if (loadFrame == 0) {
+			context.drawImage(frame1,0,0,myWidth,myHeight);
+		} else if  (loadFrame == 1) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		} else if (loadFrame == 2) {
+			context.drawImage(frame3,0,0,myWidth,myHeight);
+		} else if (loadFrame == 3) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		}
+		location.replace("./p6.html");	
+	}
+}
+
+function physics() {
+	// keep Ben in the box
+	if (yBen <= 3) {
+		yBen = 3;
+	}
+	if (yBen >= 27) {
+		yBen = 27;
+	}
+	if (xBen <= 0) {
+		xBen = 0;
+	}
+	if (xBen >= 28) {
+		xBen = 28;
+	}
+
+	// health
+	if (enemyHitPoints <= 0) {
+		enemyHitPoints = 0;
+	}
+
+	if (hitPoints <= 0) {
+		hitPoints = 0;
+	}
+
+	// explosion physics
+	if (bombExploded == 1) {
+		bombX = xb - 1;
+		bombY = yb - 1;
+		bombExploded = 0;
+		boomSound.play();
+	}
+
+	if (bombEffectTimer > 0) {
+		bombEffectTimer = bombEffectTimer - 1;
+	}
+}
+
+function vel(event) {
+	var button = event.keyCode;
+	if (((button == 83) && (ya <= 26)) && (hitPoints > 0)) {
+        ya = ya + 1;
+        faceDirection = directions[1];
+	}
+	if (((button == 87) && (ya >= 4)) && (hitPoints > 0)) {
+        ya = ya - 1;
+        faceDirection = directions[0];
+    }
+	if (((button == 68) && (xa <= 27)) && (hitPoints > 0)) {
+        xa = xa + 1;
+        faceDirection = directions[3];
+    }
+	if (((button == 65) && (xa >= 1)) && (hitPoints > 0)) {
+        xa = xa - 1;
+        faceDirection = directions[2];
+	}
+
+    // shooting
+    if (button == 73) {
+        if ((hitPoints > 0) && (reload > 5)) {
+	    	waterLoad = 0;
+		    bulletOut = 1;
+            bulletNSEW = "N";
+            faceDirection = directions[0];
+        }
+	}
+	if (button == 75) {
+        if ((hitPoints > 0) && (reload > 5)) {
+	    	waterLoad = 0;
+		    bulletOut = 1;
+            bulletNSEW = "S";
+            faceDirection = directions[1];
+        }
+	}
+	if (button == 74) {
+        if ((hitPoints > 0) && (reload > 5)) {
+	    	waterLoad = 0;
+		    bulletOut = 1;
+            bulletNSEW = "W";
+            faceDirection = directions[2];
+        }
+	}
+	if (button == 76) {
+        if ((hitPoints > 0) && (reload > 5)) {
+	    	waterLoad = 0;
+		    bulletOut = 1;
+            bulletNSEW = "E";
+            faceDirection = directions[3];
+        }
+	}
+	// end of sniper
+	
+	// restart mechanism
+	if (button == 82) {
+		xa = 14;
+		ya = 14;
+		xb = 14;
+		yb = 14;
+		ws = 1;
+		dw1 = 0;
+		hitPoints = 20;
+		toSuperJump = 0;
+		waterLoad = 0;
+		turnL = 0;
+		turnR = 0;
+		if (localStorage.choice1 === "rose") {
+			faceDirection = 'N';
+		}
+		critShot = 0;
+		bubbleOn = 0;
+		bubbleTime = 0;
+		xBen = 14;
+		yBen = 5;
+		steps = 20;
+		enemyHitPoints = 30;
+		impSpeech = 0;
+		mercy = 0;
+	}
+	// end of restart mechanism
+}
+
+function loadingScreen() {
+	loadTime += 1;
+}
+
+function realitySwitch() {
+	realityTime += 1;
+	if (realityTime >= 30) {
+		if (nightmare == 0) {
+			nightmare = 1;
+			realityTime = 0;
+		} else {
+			nightmare = 0;
+			realityTime = 0;
+		}
+	}
+}
+		</script>
+	</body>
+</html>

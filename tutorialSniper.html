@@ -1,0 +1,470 @@
+<html>
+	<head>
+		<title>Some Autobiography I'm Trying to make</title>
+	</head>
+	<body>
+		<style>body{margin:0;}</style>
+		<canvas id='ltpcanvas'></canvas>
+			<script>
+window.onload = function(){
+	init();
+	window.addEventListener('resize', init,false);
+};
+function init(){
+	var ltpc = document.getElementById('ltpcanvas');
+	var context = ltpc.getContext('2d');
+	var myWidth = window.innerWidth;
+	var myHeight = window.innerHeight;
+	context.canvas.width = myWidth;
+	context.canvas.height = myHeight;
+	context.fillStyle = '#000000';
+	context.fillRect(0,0,myWidth,myHeight);
+}
+
+var ltpc = document.getElementById('ltpcanvas');
+var context = ltpc.getContext('2d');
+var myWidth = window.innerWidth;
+var myHeight = window.innerHeight;
+
+var pixelX = myWidth * (20 / 580);
+var pixelY = myHeight * (20 / 640);
+
+// variables concerning tutorial
+var steps = 1;
+
+// variables concerning player
+var xa = 14;
+var ya = 14;
+var xb = 14;
+var yb = 14;
+var ws = 1;
+var dw1 = 0;
+var hitPoints = 20;
+var toSuperJump = 0;
+var waterLoad = 0;
+var faceDirection;
+var turnL = 0;
+var turnR = 0;
+if (localStorage.choice1 === "rose") {
+	faceDirection = 'N';
+}
+var critShot = 0;
+var directions = ['N','S','E','W'];
+
+// variables concerning bubble
+var bubbleOn = 0;
+var bubbleTime = 0;
+
+// variables concerning enemy
+var enemyHitPoints = 30;
+var bombEffectTimer = 0;
+var bombExploded = 0;
+
+// variables concerning explosions
+var bombX;
+var bombY;
+var bombExploded = 0;
+
+// variables concerning water gun bullets
+var bulletOut = 0;
+var bulletNSEW;
+
+// main character Nortn
+var mainN = new Image();
+mainN.src = 'pictures/mcN.png';
+// main character South
+var mainS = new Image();
+mainS.src = 'pictures/mcS.png';
+// main character East
+var mainE = new Image();
+mainE.src = 'pictures/mcE.png';
+// main character West
+var mainW = new Image();
+mainW.src = 'pictures/mcW.png';
+// author
+var author = new Image();
+author.src = 'pictures/author.png';
+// wheels
+var wheels = new Image();
+wheels.src = 'pictures/bike.png';
+// text box
+var textBox= new Image();
+textBox.src = 'pictures/textBox.png';
+// water
+var water = new Image();
+water.src = 'pictures/waterLaserBeam.png';
+// fire
+var fire = new Image();
+fire.src = 'pictures/fire.png';
+
+document.addEventListener("keydown",vel);
+setInterval(disp,1000/30);
+setInterval(physics,1000/30);
+setInterval(timing,1000);
+setInterval(tutor,1000/30);
+
+function tutor () {
+	if (steps == 1) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press IJKL to turn", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 2) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press H to shoot", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 3) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Spin 360 degrees to enable crits", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 4) {
+		context.fillStyle = "green";
+		context.font = "20px Fixedsys";
+		context.fillText("Press H to shoot Crit", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (steps == 5) {
+		location.replace("mercy.html");
+	}
+}
+
+function timing() {
+}
+
+function disp() {
+	context.fillStyle = "grey";
+	context.fillRect(0,0,myWidth,myHeight);
+
+	// draw text box
+	context.drawImage(textBox,0,(560 / 640) * myHeight,myWidth,(80 / 640) * myHeight);
+
+	// draw tutor
+	if (enemyHitPoints > 0) {
+		context.drawImage(author,pixelX * 14,pixelY * 5,pixelX,pixelY * 2);
+	}
+
+	if (faceDirection === directions[0]) {
+		context.drawImage(mainN,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+	if (faceDirection === directions[1]) {
+		context.drawImage(mainS,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+	if (faceDirection === directions[2]) {
+		context.drawImage(mainE,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+	if (faceDirection === directions[3]) {
+		context.drawImage(mainW,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+	
+	// draw bubble
+	if (bubbleOn == 1) {
+		context.drawImage(bubble,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+
+	//draw water gun
+	if (waterLoad == 1) {
+		xb = xa;
+		yb = ya;
+		context.drawImage(waterGun,xb*20,yb*20,pixelX,pixelY);
+	}
+
+	// draw crits
+	if ((bulletOut > 0) && ((turnL >= 4) || (turnR >= 4))) {
+		if (bulletNSEW === "N") {
+			for (i = ya - 1; i > 2; i--) {
+				context.drawImage(fire,xa*pixelX,i*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+			critShot = 1;
+			if (steps == 4) {
+				steps = 5;
+			}
+		}
+		if (bulletNSEW === "S") {
+			for (i = ya + 1; i < 28; i++) {
+				context.drawImage(fire,xa*pixelX,i*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+			critShot = 1;
+			if (steps == 4) {
+				steps = 5;
+			}
+		}
+		if (bulletNSEW === "E") {
+			for (i = xa - 1; i >= 0; i--) {
+				context.drawImage(fire,i*pixelX,ya*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+			critShot = 1;
+			if (steps == 4) {
+				steps = 5;
+			}
+		}
+		if (bulletNSEW === "W") {
+			for (i = xa + 1; i < 29; i++) {
+				context.drawImage(fire,i*pixelX,ya*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+			critShot = 1;
+			if (steps == 4) {
+				steps = 5;
+			}
+		}
+	}
+	// draw bullets
+	if ((bulletOut > 0) && (critShot == 0) && ((turnL <= 3) && (turnR <= 3))) {
+		if (bulletNSEW === "N") {
+			for (i = ya - 1; i > 2; i--) {
+				context.drawImage(water,xa*pixelX,i*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+		}
+		if (bulletNSEW === "S") {
+			for (i = ya + 1; i < 28; i++) {
+				context.drawImage(water,xa*pixelX,i*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+		}
+		if (bulletNSEW === "E") {
+			for (i = xa - 1; i >= 0; i--) {
+				context.drawImage(water,i*pixelX,ya*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+		}
+		if (bulletNSEW === "W") {
+			for (i = xa + 1; i < 29; i++) {
+				context.drawImage(water,i*pixelX,ya*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+		}
+	}
+
+	// music
+	if (typeof music.loop == 'boolean') {
+		music.loop = true;
+		music.volume = 0.7;
+	} else {
+		music.addEventListener('ended', function() {
+			this.currentTime = 0;
+			this.play();
+		}, false);
+	}
+	music.play();
+  
+	// draw player death text
+	if (hitPoints <= 0) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("You died. Press R to restart.", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	enemyHitPoints = 30;
+}
+
+function physics() {
+	// detect crits
+	if ((turnL >= 4) || (turnR >= 4)) {
+		if (steps == 3) {
+			steps = 4;
+		}
+	}
+	if ((turnL < 4) && (turnR < 4)) {
+		if (steps == 4) {
+			steps = 3;
+		}
+	}
+
+	// end crits
+	if (((turnL >= 4) || (turnR >= 4)) && (critShot == 1) && (bulletOut <= 0)) {
+		turnL = 0;
+		turnR = 0;
+		critShot = 0;
+	}
+
+	// extra damage for crits
+		if ((hitPoints > 0) && (faceDirection === directions[0]) && (critShot == 1)) {
+			if ((xa == xTian) && ((ya >= yTian) || (ya >= yTian - 1))) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+		}
+		if ((hitPoints > 0) && (faceDirection === directions[1]) && (critShot == 1)) {
+			if ((xa == xTian) && ((ya <= yTian) || (ya <= yTian - 1))) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+		}
+		if ((hitPoints > 0) && (faceDirection === directions[2]) && (critShot == 1)) {
+			if (((ya == yTian) || (ya == yTian - 1)) && (xa >= xTian)) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+		}
+		if ((hitPoints > 0) && (faceDirection === directions[3]) && (critShot == 1)) {
+			if (((ya == yTian) || (ya == yTian - 1)) && (xa <= xTian)) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+		}
+
+	// keep Mr Tian in the box
+	if (yTian <= 3) {
+		yTian = 3;
+	}
+	if (yTian >= 27) {
+		yTian = 27;
+	}
+	if (xTian <= 0) {
+		xTian = 0;
+	}
+	if (xTian >= 28) {
+		xTian = 28;
+	}
+
+	if ((dw1 == 0) && (toSuperJump == 0)) {
+		xb = xa;
+		yb = ya;
+	}
+
+	if ((xa == xb) && (ya == yb) && (ws == 0)) {
+		ws = 1;
+		dw1 = 0;
+	}
+
+	// health
+	if (enemyHitPoints <= 0) {
+		enemyHitPoints = 0;
+	}
+
+	if (hitPoints <= 0) {
+		hitPoints = 0;
+	}
+}
+
+function vel(event) {
+	var button = event.keyCode;
+	if (((button == 83) && (ya <= 26)) && (hitPoints > 0) && (bubbleOn == 0)) {
+		ya = ya + 1;
+	}
+	if (((button == 87) && (ya >= 4)) && (hitPoints > 0) && (bubbleOn == 0)) {
+		ya = ya - 1;
+	}
+	if (((button == 68) && (xa <= 27)) && (hitPoints > 0) && (bubbleOn == 0)) {
+		xa = xa + 1;
+	}
+	if (((button == 65) && (xa >= 1)) && (hitPoints > 0) && (bubbleOn == 0)) {
+		xa = xa - 1;
+	}
+
+	// special moves
+	if (localStorage.choice1 === "rose") {
+		// facing which direction
+		if (button == 73) {
+			if (faceDirection === directions[2]) {
+				turnR = turnR + 1;
+				turnL = 0;
+				faceDirection = directions[0];
+			} else if (faceDirection === directions[3]) {
+				turnL = turnL + 1;
+				turnR = 0;
+				faceDirection = directions[0];
+			} else {
+				turnL = 0;
+				turnR = 0;
+				faceDirection = directions[0];
+			}
+			if (steps == 1) {
+				steps = 2;
+			}
+		}
+		if (button == 75) {
+			if (faceDirection === directions[3]) {
+				turnR = turnR + 1;
+				turnL = 0;
+				faceDirection = directions[1];
+			} else if (faceDirection === directions[2]) {
+				turnL = turnL + 1;
+				turnR = 0;
+				faceDirection = directions[1];
+			} else {
+				turnL = 0;
+				turnR = 0;
+				faceDirection = directions[1];
+			}
+			if (steps == 1) {
+				steps = 2;
+			}
+		}
+		if (button == 74) {
+			if (faceDirection === directions[1]) {
+				turnR = turnR + 1;
+				turnL = 0;
+				faceDirection = directions[2];
+			} else if (faceDirection === directions[0]) {
+				turnL = turnL + 1;
+				turnR = 0;
+				faceDirection = directions[2];
+			} else {
+				turnL = 0;
+				turnR = 0;
+				faceDirection = directions[2];
+			}
+			if (steps == 1) {
+				steps = 2;
+			}
+		}
+		if (button == 76) {
+			if (faceDirection === directions[0]) {
+				turnR = turnR + 1;
+				turnL = 0;
+				faceDirection = directions[3];
+			} else if (faceDirection === directions[1]) {
+				turnL = turnL + 1;
+				turnR = 0;
+				faceDirection = directions[3];
+			} else {
+				turnL = 0;
+				turnR = 0;
+				faceDirection = directions[3];
+			}
+			if (steps == 1) {
+				steps = 2;
+			}
+		}
+
+		// sniper
+		if ((button == 72) && (hitPoints > 0) && (faceDirection === directions[0])) {
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "N";
+			if (steps == 2) {
+				steps = 3;
+			}
+		}
+		if ((button == 72) && (hitPoints > 0) && (faceDirection === directions[1])) {
+			enemyHitPoints = enemyHitPoints - 0.5;
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "S";
+			if (steps == 2) {
+				steps = 3;
+			}
+		}
+		if ((button == 72) && (hitPoints > 0) && (faceDirection === directions[2])) {
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "E";
+			if (steps == 2) {
+				steps = 3;
+			}
+		}
+		if ((button == 72) && (hitPoints > 0) && (faceDirection === directions[3])) {
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "W";
+			if (steps == 2) {
+				steps = 3;
+			}
+		}
+		// end of sniper
+	}
+}
+			</script>
+	</body>
+</html>

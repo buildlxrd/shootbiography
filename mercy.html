@@ -1,0 +1,131 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="Keywords" content="autobiographical, HTML, JavaScript, game, shootbiography, Some Autobiography Im Trying to Make, fun, for Kids, for Adults, Online, shooter, 2d, browser games, browser, website, play, play now, canvas">
+		<meta name="Description" content="Welcome to Shootbiography! This is a game about Dos and his life. This is autobiographical. It is fun! It is for kids and adults! PLAY NOW!!!">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Shootbiography | Some Autobiography I'm Trying to Make</title>
+	</head>
+	<body>
+		<style>body{margin:0;}</style>
+		<canvas id='ltpcanvas'></canvas>
+			<script>
+	window.onload = function(){
+		init();
+		window.addEventListener('resize', init,false);
+	};
+	function init(){
+		var ltpc = document.getElementById('ltpcanvas');
+		var context = ltpc.getContext('2d');
+		var myWidth = window.innerWidth;
+		var myHeight = window.innerHeight;
+		context.canvas.width = myWidth;
+		context.canvas.height = myHeight;
+		context.fillStyle = '#000000';
+		context.fillRect(0,0,myWidth,myHeight);
+	}
+
+	setInterval(disp, 1000/30);
+
+var ltpc = document.getElementById('ltpcanvas');
+var context = ltpc.getContext('2d');
+var myWidth = window.innerWidth;
+var myHeight = window.innerHeight;
+
+var frame1 = new Image();
+frame1.src = 'pictures/loading1.png';
+var frame2 = new Image();
+frame2.src = 'pictures/loading2.png';
+var frame3 = new Image();
+frame3.src = 'pictures/loading3.png';
+
+var pixelX = myWidth * (20 / 580);
+var pixelY = myHeight * (20 / 640);
+
+var say = 0;
+
+//variables concerning loading screen
+var loadTime = 1;
+var loadFrame = loadTime % 4;
+var frame1 = new Image();
+frame1.src = 'pictures/loading1.png';
+var frame2 = new Image();
+frame2.src = 'pictures/loading2.png';
+var frame3 = new Image();
+frame3.src = 'pictures/loading3.png';
+
+document.addEventListener("keydown",vel);
+setInterval(disp,1000/30);
+setInterval(loadingScreen,1000/4);
+
+function disp() {
+	context.fillStyle = "grey";
+	context.fillRect(0,0,myWidth,myHeight);
+
+	// start of script
+	if (say == 0) {
+		context.fillStyle = "black";
+		context.font = "30px Gill Sans MT";
+		context.fillText("Keep Pressing the Down Button", pixelX / 2, pixelY * 2.5);
+		context.fillText("to Read Messages", pixelX / 2, pixelY * 4.5);
+	}
+	if (say == 1) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("One last thing to remember:", pixelX / 2, pixelY * 2.5);
+	}
+	if (say == 2) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("You can show mercy to people.", pixelX / 2, pixelY * 2.5);
+	}
+	if (say == 3) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("Just don't attack", pixelX / 2, pixelY * 2.5);
+	}
+	if (say == 4) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("And they might let you go", pixelX / 2, pixelY * 2.5);
+	}
+	if (say == 5) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("except for the first battle,", pixelX / 2, pixelY * 2.5);
+	}
+	if (say == 6) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("because I forgot to code in the mercy option.", pixelX / 2, pixelY * 2.5);
+	}
+	if (say >= 7) {
+		loadFrame = loadTime % 4;
+		if (loadFrame == 0) {
+			context.drawImage(frame1,0,0,myWidth,myHeight);
+		} else if  (loadFrame == 1) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		} else if (loadFrame == 2) {
+			context.drawImage(frame3,0,0,myWidth,myHeight);
+		} else if (loadFrame == 3) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		}
+		location.replace("mrTian.html");
+	}
+	// end of script
+}
+
+function vel(event) {
+	var button = event.keyCode;
+	if (button == 40) {
+		say = say + 1;
+	}
+}
+
+function loadingScreen() {
+	loadTime += 1;
+}
+			</script>
+	</body>
+</html>

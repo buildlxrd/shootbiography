@@ -1,0 +1,217 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="Keywords" content="autobiographical, HTML, JavaScript, game, shootbiography, Some Autobiography Im Trying to Make, fun, for Kids, for Adults, Online, shooter, 2d, browser games, browser, website, play, play now, canvas">
+		<meta name="Description" content="Welcome to Shootbiography! This is a game about Dos and his life. This is autobiographical. It is fun! It is for kids and adults! PLAY NOW!!!">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Shootbiography | Some Autobiography I'm Trying to Make</title>
+	</head>
+	<body>
+		<style>body{margin:0;}</style>
+		<canvas id='ltpcanvas'></canvas>
+	</body>
+	<script>
+	window.onload = function(){
+		init();
+		window.addEventListener('resize', init,false);
+	};
+	function init(){
+		var ltpc = document.getElementById('ltpcanvas');
+		var context = ltpc.getContext('2d');
+		var myWidth = window.innerWidth;
+		var myHeight = window.innerHeight;
+		context.canvas.width = myWidth;
+		context.canvas.height = myHeight;
+		context.fillStyle = '#000000';
+		context.fillRect(0,0,myWidth,myHeight);
+	}
+
+	setInterval(disp, 1000/30);
+
+	var ltpc = document.getElementById('ltpcanvas');
+	var context = ltpc.getContext('2d');
+	var myWidth = window.innerWidth;
+	var myHeight = window.innerHeight;
+
+var ltpc = document.getElementById('ltpcanvas');
+var context = ltpc.getContext('2d');
+var myWidth = window.innerWidth;
+var myHeight = window.innerHeight;
+
+var pixelX = myWidth * (20 / 580);
+var pixelY = myHeight * (20 / 640);
+
+//loading screen
+var say = 0;
+var loadTime = 1;
+var loadFrame = loadTime % 3;
+
+var frame1 = new Image();
+frame1.src = 'pictures/loading1.png';
+var frame2 = new Image();
+frame2.src = 'pictures/loading2.png';
+var frame3 = new Image();
+frame3.src = 'pictures/loading3.png';
+
+//pares
+var paresTime = 1;
+var paresFrame = paresTime % 4;
+var pares1 = new Image();
+pares1.src = 'pictures/pares1.png';
+var pares2 = new Image();
+pares2.src = 'pictures/pares2.png';
+var pares3 = new Image();
+pares3.src = 'pictures/pares3.png';
+
+//badge
+var badgeTime = 1;
+var badgeFrame = paresTime % 14;
+var badge1 = new Image();
+badge1.src = 'pictures/badge1.png';
+var badge2 = new Image();
+badge2.src = 'pictures/badge2.png';
+var badge3 = new Image();
+badge3.src = 'pictures/badge3.png';
+var badge4 = new Image();
+badge4.src = 'pictures/badge4.png';
+var badge5 = new Image();
+badge5.src = 'pictures/badge5.png';
+var badge6 = new Image();
+badge6.src = 'pictures/badge6.png';
+var badge7 = new Image();
+badge7.src = 'pictures/badge7.png';
+var badge8 = new Image();
+badge8.src = 'pictures/badge8.png';
+
+document.addEventListener("keydown",vel);
+setInterval(disp,1000/30);
+setInterval(loadingScreen,1000/4);
+setInterval(pares,1000/4);
+setInterval(badge,1000/15);
+
+function disp() {
+	context.fillStyle = "grey";
+	context.fillRect(0,0,myWidth,myHeight);
+
+	// start of script
+	if (say == 0) {
+		context.fillStyle = "black";
+		context.font = "30px Gill Sans MT";
+		context.fillText("Keep Pressing the Down Button", pixelX / 2, pixelY * 2.5);
+		context.fillText("to Read Messages", pixelX / 2, pixelY * 4.5);
+	}
+	if (say == 1) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("Congratulations! You have passed", pixelX / 2, pixelY * 2.5);
+        context.fillText("the first level of my brain!", pixelX / 2, pixelY * 4.5);
+	}
+	if (say == 2) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("Here's a badge!", pixelX / 2, pixelY * 2.5);
+		var badgeFrame = badgeTime % 14;
+		if (badgeFrame == 0) {
+			context.drawImage(badge1,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 1) {
+			context.drawImage(badge2,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 2) {
+			context.drawImage(badge3,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 3) {
+			context.drawImage(badge4,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 4) {
+			context.drawImage(badge5,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 5) {
+			context.drawImage(badge6,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 6) {
+			context.drawImage(badge7,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 7) {
+			context.drawImage(badge8,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 8) {
+			context.drawImage(badge7,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 9) {
+			context.drawImage(badge6,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 10) {
+			context.drawImage(badge5,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 11) {
+			context.drawImage(badge4,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 12) {
+			context.drawImage(badge3,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		} else if (badgeFrame == 13) {
+			context.drawImage(badge2,pixelX * 1,pixelY * 4,pixelX * 7,pixelY * 10);
+		}
+	}
+	if (say == 3) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("And here's some pares!", pixelX / 2, pixelY * 2.5);
+		var paresFrame = paresTime % 4;
+		if (paresFrame == 0) {
+			context.drawImage(pares1,pixelX * 1,pixelY * 4,pixelX * 5,pixelY * 10);
+		} else if (paresFrame == 1) {
+			context.drawImage(pares2,pixelX * 1,pixelY * 4,pixelX * 5,pixelY * 10);
+		} else if (paresFrame == 2) {
+			context.drawImage(pares3,pixelX * 1,pixelY * 4,pixelX * 5,pixelY * 10);
+		} else if (paresFrame == 3) {
+			context.drawImage(pares2,pixelX * 1,pixelY * 4,pixelX * 5,pixelY * 10);
+		}
+	}
+	if (say == 4) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("I made this game about", pixelX / 2, pixelY * 2.5);
+        context.fillText("a year ago.", pixelX / 2, pixelY * 4.5);
+	}
+	if (say == 5) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("I'll give you some simpler weapons to use.", pixelX / 2, pixelY * 2.5);
+	}
+	if (say == 6) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("I promise it will be worth it when", pixelX / 2, pixelY * 2.5);
+        context.fillText("we get to the party.", pixelX / 2, pixelY * 4.5);
+	}
+	if (say == 7) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("It'll be so much fun!", pixelX / 2, pixelY * 2.5);
+	}
+	if (say >= 8) {
+		loadFrame = loadTime % 4;
+		if (loadFrame == 0) {
+			context.drawImage(frame1,0,0,myWidth,myHeight);
+		} else if  (loadFrame == 1) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		} else if (loadFrame == 2) {
+			context.drawImage(frame3,0,0,myWidth,myHeight);
+		} else if (loadFrame == 3) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		}
+		location.replace("newWeapons.html");
+	}
+	// end of script
+}
+
+function loadingScreen() {
+	loadTime += 1;
+}
+
+function pares() {
+	paresTime += 1;
+}
+
+function badge() {
+	badgeTime += 1;
+}
+
+function vel(event) {
+	var button = event.keyCode;
+	if (button == 40) {
+		say = say + 1;
+	}
+}
+	</script>
+</html>

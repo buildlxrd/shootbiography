@@ -1,0 +1,1315 @@
+<html>
+	<head>
+		<title>Some Autobiography I'm Trying to make</title>
+	</head>
+	<body>
+		<style>body{margin:0;}</style>
+		<canvas id='ltpcanvas'></canvas>
+			<script>
+window.onload = function(){
+	init();
+	window.addEventListener('resize', init,false);
+};
+function init(){
+	var ltpc = document.getElementById('ltpcanvas');
+	var context = ltpc.getContext('2d');
+	var myWidth = window.innerWidth;
+	var myHeight = window.innerHeight;
+	context.canvas.width = myWidth;
+	context.canvas.height = myHeight;
+	context.fillStyle = '#000000';
+	context.fillRect(0,0,myWidth,myHeight);
+}
+
+	var ltpc = document.getElementById('ltpcanvas');
+	var context = ltpc.getContext('2d');
+	var myWidth = window.innerWidth;
+	var myHeight = window.innerHeight;
+	context.canvas.width = myWidth;
+	context.canvas.height = myHeight;
+
+var pixelX = myWidth * (20 / 580);
+var pixelY = myHeight * (20 / 640);
+
+// variables concerning player
+var xa = 14;
+var ya = 14;
+var xb = 14;
+var yb = 14;
+var ws = 1;
+var dw1 = 0;
+var hitPoints = 20;
+var toSuperJump = 0;
+var waterLoad = 0;
+var faceDirection;
+var turnL = 0;
+var turnR = 0;
+if (localStorage.choice1 === "rose") {
+	faceDirection = 'N';
+}
+var critShot = 0;
+var reload = 20;
+
+// variables concerning bubble
+var bubbleOn = 0;
+var bubbleTime = 0;
+
+// variables concerning enemy
+var xTian = 14;
+var yTian = 5;
+var directions = ['N','S','E','W'];
+var steps = 20;
+var enemyHitPoints = 30;
+var impSpeech = 0;
+var invisible = 0;
+var invisAnimation = 0;
+var invisTimer = 0;
+var bikeDone = 0;
+var deathScript = 0;
+
+// backstab
+var backStabStep = 0;
+var backStabPhase = 0;
+var backStabX;
+var backStabY;
+var backStabActivate = 0;
+var backStabDone = 1;
+
+// flame thrower
+var flameThrowerDone = 1;
+var flameThrowerTimer = 0;
+var fireX;
+var fireY;
+var fireTiles = [];
+var directionsToGo;
+
+// minions
+var minionDone = 1;
+var m1x;
+var m1y;
+var m2x;
+var m2y;
+var m3x;
+var m3y;
+var m4x;
+var m4y;
+var m1alive = 0;
+var m2alive = 0;
+var m3alive = 0;
+var m4alive = 0;
+var doneSpawn1 = 0;
+var doneSpawn2 = 0;
+var doneSpawn3 = 0;
+var doneSpawn4 = 0;
+
+// mercy
+var mercy = 0;
+
+// variables concerning explosions
+var bombX;
+var bombY;
+var bombExploded = 0;
+var bombEffectTimer = 0;
+
+// variables concerning water gun bullets
+var bulletOut = 0;
+var bulletNSEW;
+
+// main character
+var main = new Image();
+main.src = 'pictures/mc.png';
+// main character Nortn
+var mainN = new Image();
+mainN.src = 'pictures/mcN.png';
+// main character South
+var mainS = new Image();
+mainS.src = 'pictures/mcS.png';
+// main character East
+var mainE = new Image();
+mainE.src = 'pictures/mcE.png';
+// main character West
+var mainW = new Image();
+mainW.src = 'pictures/mcW.png';
+// mrTian
+var mrTian = new Image();
+mrTian.src = 'pictures/mrTian.png';
+// wheels
+var wheels = new Image();
+wheels.src = 'pictures/bike.png';
+// player health bar
+var hp = new Image();
+hp.src = 'pictures/playerBar.png';
+// grave
+var grave = new Image();
+grave.src = 'pictures/grave.png';
+// enemy health bar
+var ehp = new Image();
+ehp.src = 'pictures/enemyBar.png';
+// drone without grenade
+var d0 = new Image();
+d0.src = 'pictures/d0.png';
+// drone with grenade
+var d1 = new Image();
+d1.src = 'pictures/d1.png';
+// explosion
+var explosion = new Image();
+explosion.src = 'pictures/kaboom.png';
+// text box
+var textBox= new Image();
+textBox.src = 'pictures/textBox.png';
+// bubble
+var bubble = new Image();
+bubble.src = 'pictures/bubble.png';
+// virtualmc
+var virtualmc = new Image();
+virtualmc.src = 'pictures/virtualmc.png';
+// water gun
+var waterGun = new Image();
+waterGun.src = 'pictures/waterGun.png';
+// water
+var water = new Image();
+water.src = 'pictures/waterLaserBeam.png';
+// fire
+var fire = new Image();
+fire.src = 'pictures/fire.png';
+// question mark white
+var questionWhite = new Image();
+questionWhite.src = 'pictures/questionWhite.png';
+// question mark black
+var questionBlack = new Image();
+questionBlack.src = 'pictures/questionBlack.png';
+// knife
+var knife = new Image();
+knife.src = 'pictures/knife.png';
+
+// sounds
+var boomSound = new Audio('explosion.mp3');
+var droneDeployed = new Audio('droneDeployed.mp3');
+// var music = new Audio('portalToInsanity.mp3');
+// var music = new Audio('music.mp3');
+
+//variables concerning loading screen
+var loadTime = 1;
+var loadFrame = loadTime % 4;
+var frame1 = new Image();
+frame1.src = 'pictures/loading1.png';
+var frame2 = new Image();
+frame2.src = 'pictures/loading2.png';
+var frame3 = new Image();
+frame3.src = 'pictures/loading3.png';
+
+document.addEventListener("keydown",vel);
+setInterval(disp,1000/30);
+setInterval(physics,1000/30);
+setInterval(timing,1000);
+setInterval(bike,1000/6.33333333333333333333);
+setInterval(suckWater,1000/40);
+setInterval(loadingScreen,1000/4);
+
+function suckWater() {
+	if (reload < 20) {
+		reload = reload + 1;
+	}
+}
+
+function bike() {
+	directionsToGo = directions[Math.floor(Math.random() * 4)];
+	if ((steps > 0) && (enemyHitPoints > 0)) {
+		if (directionsToGo === 'N') {
+			yTian = yTian - 1;
+			steps = steps - 1;
+	  	}
+		if (directionsToGo === 'S') {
+			yTian = yTian + 1;
+			steps = steps - 1;
+		}
+		if (directionsToGo === 'E') {
+			xTian = xTian - 1;
+			steps = steps - 1;
+	  	}
+		if (directionsToGo === 'W') {
+			xTian = xTian + 1;
+			steps = steps - 1;
+		}
+	}
+	if ((steps <= 0) && (backStabDone == 1) && (invisible == 0) && (flameThrowerDone == 1) && (minionDone == 1) && (enemyHitPoints > 0)) {
+		doneSpawn1 = 0;
+		doneSpawn2 = 0;
+		doneSpawn3 = 0;
+		doneSpawn4 = 0;
+		invisible = 1;
+		invisAnimation = 5;
+		invisTimer = 3;
+		backStabPhase = 0;
+	}
+
+	if ((invisAnimation > 0) && (enemyHitPoints > 0)) {
+  		invisAnimation = invisAnimation - 1;
+	}
+
+	// backstab
+	if ((invisTimer <= 0) && (backStabDone == 1) && (steps <= 0) && (minionDone == 1) && (enemyHitPoints > 0)) {
+		backStabActivate = 1;
+		backStabDone = 0;
+		bikeDone = 1;
+	}
+
+	if ((backStabDone == 0) && (backStabPhase < 5) && (enemyHitPoints > 0)) {
+  		backStabPhase = backStabPhase + 1;
+	}
+
+	if ((backStabActivate == 1) && (backStabDone == 0) && (enemyHitPoints > 0)) {
+		backStabX = xa;
+		backStabY = ya;
+		backStabActivate = 0;
+	}
+
+	if ((backStabPhase == 2) && (enemyHitPoints > 0)) {
+		xTian = backStabX;
+		yTian = backStabY;
+		invisible = 0;
+	}
+
+	if ((backStabPhase == 4) && (xTian == xa) && (yTian == ya) && (backStabDone == 0) && (flameThrowerDone == 1) && (minionDone == 1) && (bikeDone == 1) && (enemyHitPoints > 0) && (bubbleOn == 0)) {
+		hitPoints = hitPoints - 4;
+		backStabDone = 1;
+	}
+	if ((backStabPhase == 4) && (enemyHitPoints > 0)) {
+		backStabDone = 1;
+		flameThrowerDone = 0;
+		flameThrowerTimer = 8;
+	}
+	
+	// flamethrower
+	if ((flameThrowerDone == 0) && (enemyHitPoints > 0)) {
+		backStabDone = 1;
+		fireTiles = [];
+		// WM1
+		if (xa > xTian) {
+			if (xa == xTian + 1) {
+				fireTiles.push({fireX:xTian + 3,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian + 2,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian + 2,fireY:yTian});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian});
+				fireTiles.push({fireX:xTian + 3,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian + 2,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian - 1});
+			} else {
+				xTian = xTian + 1;
+				fireTiles.push({fireX:xTian + 3,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian + 2,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian + 2,fireY:yTian});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian});
+				fireTiles.push({fireX:xTian + 3,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian + 2,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian - 1});
+			}
+		}
+		if (xa < xTian) {
+			if (xa == xTian - 1) {
+				fireTiles.push({fireX:xTian - 3,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian - 2,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian - 2,fireY:yTian});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian});
+				fireTiles.push({fireX:xTian - 3,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian - 2,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian - 1});
+			} else {
+				xTian = xTian - 1;
+				fireTiles.push({fireX:xTian - 3,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian - 2,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian - 2,fireY:yTian});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian});
+				fireTiles.push({fireX:xTian - 3,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian - 2,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian - 1});
+			}
+		}
+		if (ya > yTian) {
+			if (ya == yTian + 1) {
+				fireTiles.push({fireX:xTian - 1,fireY:yTian + 3});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian + 2});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian,fireY:yTian + 2});
+				fireTiles.push({fireX:xTian,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian + 3});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian + 2});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian + 1});
+			} else {
+				yTian = yTian + 1;
+				fireTiles.push({fireX:xTian - 1,fireY:yTian + 3});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian + 2});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian,fireY:yTian + 2});
+				fireTiles.push({fireX:xTian,fireY:yTian + 1});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian + 3});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian + 2});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian + 1});
+			}
+		}
+		if (ya < yTian) {
+			if (ya == yTian - 1) {
+				fireTiles.push({fireX:xTian - 1,fireY:yTian - 3});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian - 2});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian,fireY:yTian - 2});
+				fireTiles.push({fireX:xTian,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian - 3});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian - 2});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian - 1});
+			} else {
+				yTian = yTian - 1;
+				fireTiles.push({fireX:xTian - 1,fireY:yTian - 3});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian - 2});
+				fireTiles.push({fireX:xTian - 1,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian,fireY:yTian - 2});
+				fireTiles.push({fireX:xTian,fireY:yTian - 1});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian - 3});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian - 2});
+				fireTiles.push({fireX:xTian + 1,fireY:yTian - 1});
+			}
+		}
+	}
+
+	// minions
+	if ((minionDone == 0) && (backStabDone == 1) && (flameThrowerDone == 1) && (bikeDone == 1) && (m1alive == 0) && (m2alive == 0) && (m3alive == 0) && (m4alive == 0) && (enemyHitPoints > 0) && (doneSpawn1 == 0) && (doneSpawn2 == 0) && (doneSpawn3 == 0) && (doneSpawn4 == 0)) {
+		m1x = xTian;
+		m1y = yTian + 1;
+		m2x = xTian - 1;
+		m2y = yTian;
+		m3x = xTian + 1;
+		m3y = yTian;
+		m4x = xTian;
+		m4y = yTian - 1;
+		m1alive = 1;
+		m2alive = 1;
+		m3alive = 1;
+		m4alive = 1;
+		doneSpawn1 = 1;
+		doneSpawn2 = 1;
+		doneSpawn3 = 1;
+		doneSpawn4 = 1;
+	}
+	// minion 1
+	if ((minionDone == 0) && (m1x > xa) && (m1alive == 1) && (enemyHitPoints > 0)) {
+		m1x = m1x - 2;
+	}
+	if ((minionDone == 0) && (m1x < xa) && (m1alive == 1) && (enemyHitPoints > 0)) {
+		m1x = m1x + 2;
+	}
+	if ((minionDone == 0) && (m1y > ya) && (m1alive == 1) && (enemyHitPoints > 0)) {
+		m1y = m1y - 2;
+	}
+	if ((minionDone == 0) && (m1y < ya) && (m1alive == 1) && (enemyHitPoints > 0)) {
+		m1y = m1y + 2;
+	}
+	// minion 2
+	if ((minionDone == 0) && (m2x > xa) && (m2alive == 1) && (enemyHitPoints > 0)) {
+		m2x = m2x - 2;
+	}
+	if ((minionDone == 0) && (m2x < xa) && (m2alive == 1) && (enemyHitPoints > 0)) {
+		m2x = m2x + 2;
+	}
+	if ((minionDone == 0) && (m2y > ya) && (m2alive == 1) && (enemyHitPoints > 0)) {
+		m2y = m2y - 2;
+	}
+	if ((minionDone == 0) && (m2y < ya) && (m2alive == 1) && (enemyHitPoints > 0)) {
+		m2y = m2y + 2;
+	}
+	// minion 3
+	if ((minionDone == 0) && (m3x > xa) && (m3alive == 1) && (enemyHitPoints > 0)) {
+		m3x = m3x - 2;
+	}
+	if ((minionDone == 0) && (m3x < xa) && (m3alive == 1) && (enemyHitPoints > 0)) {
+		m3x = m3x + 2;
+	}
+	if ((minionDone == 0) && (m3y > ya) && (m3alive == 1) && (enemyHitPoints > 0)) {
+		m3y = m3y - 2;
+	}
+	if ((minionDone == 0) && (m3y < ya) && (m3alive == 1) && (enemyHitPoints > 0)) {
+		m3y = m3y + 2;
+	}
+	// minion 4
+	if ((minionDone == 0) && (m4x > xa) && (m4alive == 1) && (enemyHitPoints > 0)) {
+		m4x = m4x - 2;
+	}
+	if ((minionDone == 0) && (m4x < xa) && (m4alive == 1) && (enemyHitPoints > 0)) {
+		m4x = m4x + 2;
+	}
+	if ((minionDone == 0) && (m4y > ya) && (m4alive == 1) && (enemyHitPoints > 0)) {
+		m4y = m4y - 2;
+	}
+	if ((minionDone == 0) && (m4y < ya) && (m4alive == 1) && (enemyHitPoints > 0)) {
+		m4y = m4y + 2;
+	}
+	// AI when super close
+	if ((m1x == xa + 1) && (enemyHitPoints > 0)) {
+		m1x = m1x + 1;
+	}
+	if ((m1x == xa - 1) && (enemyHitPoints > 0)) {
+		m1x = m1x - 1;
+	}
+	if ((m1y == ya + 1) && (enemyHitPoints > 0)) {
+		m1y = m1y + 1;
+	}
+	if ((m1y == ya - 1) && (enemyHitPoints > 0)) {
+		m1y = m1y - 1;
+	}
+	if ((m2x == xa + 1) && (enemyHitPoints > 0)) {
+		m2x = m2x + 1;
+	}
+	if ((m2x == xa - 1) && (enemyHitPoints > 0)) {
+		m2x = m2x - 1;
+	}
+	if ((m2y == ya + 1) && (enemyHitPoints > 0)) {
+		m2y = m2y + 1;
+	}
+	if ((m2y == ya - 1) && (enemyHitPoints > 0)) {
+		m2y = m2y - 1;
+	}
+	if ((m3x == xa + 1) && (enemyHitPoints > 0)) {
+		m3x = m3x + 1;
+	}
+	if ((m3x == xa - 1) && (enemyHitPoints > 0)) {
+		m3x = m3x - 1;
+	}
+	if ((m3y == ya + 1) && (enemyHitPoints > 0)) {
+		m3y = m3y + 1;
+	}
+	if ((m3y == ya - 1) && (enemyHitPoints > 0)) {
+		m3y = m3y - 1;
+	}
+	if ((m4x == xa + 1) && (enemyHitPoints > 0)) {
+		m4x = m4x + 1;
+	}
+	if ((m4x == xa - 1) && (enemyHitPoints > 0)) {
+		m4x = m4x - 1;
+	}
+	if ((m4y == ya + 1) && (enemyHitPoints > 0)) {
+		m4y = m4y + 1;
+	}
+	if ((m4y == ya - 1) && (enemyHitPoints > 0)) {
+		m4y = m4y - 1;
+	}
+	// detect if tians got in
+	if ((m1x == xa) && (m1y == ya) && (m1alive == 1) && (enemyHitPoints > 0) && (bubbleOn == 0)) {
+		hitPoints = hitPoints - 1;
+		m1alive = 0;
+	}
+	if ((m2x == xa) && (m2y == ya) && (m2alive == 1) && (enemyHitPoints > 0) && (bubbleOn == 0)) {
+		hitPoints = hitPoints - 1;
+		m2alive = 0;
+	}
+	if ((m3x == xa) && (m3y == ya) && (m3alive == 1) && (enemyHitPoints > 0) && (bubbleOn == 0)) {
+		hitPoints = hitPoints - 1;
+		m3alive = 0;
+	}
+	if ((m4x == xa) && (m4y == ya) && (m4alive == 1) && (enemyHitPoints > 0) && (bubbleOn == 0)) {
+		hitPoints = hitPoints - 1;
+		m4alive = 0;
+	}
+	if ((m1alive == 0) && (m2alive == 0) && (m3alive == 0) && (m4alive == 0) && (minionDone == 0) && (bikeDone == 1) && (flameThrowerDone == 1) && (backStabDone == 1) && (enemyHitPoints > 0) && (doneSpawn1 == 1) && (doneSpawn2 == 1) && (doneSpawn3 == 1) && (doneSpawn4 == 1)) {
+		minionDone = 1;
+		bikeDone = 0;
+		steps = 20;
+	}
+}
+
+function timing() {
+	// bubbles
+	if (bubbleTime > 0) {
+		bubbleTime = bubbleTime - 1;
+	}
+
+	// impromptu speech
+	impSpeech = impSpeech + 1;
+
+	// invisibility timer
+	if (invisTimer > 0) {
+		invisTimer = invisTimer - 1;
+	}
+
+	// flamethrower
+	if (flameThrowerTimer > 0) {
+		flameThrowerTimer = flameThrowerTimer - 1;
+	}
+
+	// end flamethrower
+	if ((flameThrowerTimer <= 0) && (flameThrowerDone == 0)) {
+		flameThrowerDone = 1;
+		fireTiles = [];
+		minionDone = 0;
+	}
+
+	// death script
+	if (enemyHitPoints <= 0 ) {
+		deathScript = deathScript + 1;
+	}
+
+	// mercy timer
+	if (mercy < 125) {
+		mercy = mercy + 1;
+	}
+}
+
+function disp() {
+	context.fillStyle = "grey";
+	context.fillRect(0,0,myWidth,myHeight);
+
+	//draw health bar
+	if (hitPoints >= 0) {
+	context.fillStyle = "green";
+	context.fillRect((6 / 580) * myWidth,(25 / 640) * myHeight,(hitPoints / 20) * ((10 * pixelX) - (6 / 580) * myWidth),(26 / 640) * myHeight);
+	context.drawImage(hp,0*pixelX,0*pixelY,10*pixelX,3*pixelY);
+	}
+
+	// draw enemy health bar
+	if (enemyHitPoints >= 0) {
+	context.drawImage(ehp,19 * pixelX,0*pixelY,10*pixelX,3*pixelY);
+	context.fillStyle = "red";
+	context.fillRect((386 / 580) * myWidth,(25 / 640) * myHeight,enemyHitPoints * (6.25 / 580) * myWidth,(26 / 640) * myHeight);
+	}
+
+	// draw text box
+	context.drawImage(textBox,0,(560 / 640) * myHeight,myWidth,(80 / 640) * myHeight);
+
+	// draw introduction
+	if (impSpeech == 0) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("Hi. I'm Tian.", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (impSpeech == 1) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("Mr. Tian.", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (impSpeech == 2) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("This is my presentation", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (impSpeech == 3) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("about my awesomeness.", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (impSpeech == 4) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("Don't worry. It won't be long.", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (impSpeech == 5) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("I'll be done before you die.", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if ((hitPoints > 0) && (hitPoints <= 1)) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("And that's why I'm awesome.", (20 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+	if (hitPoints <= 0) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("And that's why I'm awesome.", (20 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+
+	//draw drone
+	if (localStorage.choice1 === 'door') {
+		if ((xa == xb) && (ya == yb) && (toSuperJump == 0) && (waterLoad == 0)) {
+			context.drawImage(d1,xb*pixelX,yb*pixelY,pixelX,pixelY);
+		}
+		if ((ws == 1) && (toSuperJump == 0) && (waterLoad == 0)) {
+			context.drawImage(d1,xb*pixelX,yb*pixelY,pixelX,pixelY);
+		}
+		if ((ws == 0) && (toSuperJump == 0) && (waterLoad == 0)) {
+			context.drawImage(d0,xb*pixelX,yb*pixelY,pixelX,pixelY);
+			context.drawImage(main,xa*pixelX,ya*pixelY,pixelX,pixelY);
+		}
+	}
+
+	// draw mrTian
+	if ((enemyHitPoints > 0) && (invisible == 0)) {
+		context.drawImage(mrTian,xTian*pixelX,(yTian-1)*pixelY,pixelX,2*pixelY);
+	} else if ((enemyHitPoints > 0) && (invisible == 1)) {
+
+	} else {
+		context.drawImage(grave,xTian*pixelX,yTian*pixelY,pixelX,pixelY);
+	}
+
+	// draw minions
+	if (m1alive == 1) {
+		context.drawImage(mrTian,m1x*pixelX,m1y*pixelY,pixelX,pixelY);
+	}
+	if (m2alive == 1) {
+		context.drawImage(mrTian,m2x*pixelX,m2y*pixelY,pixelX,pixelY);
+	}
+	if (m3alive == 1) {
+		context.drawImage(mrTian,m3x*pixelX,m3y*pixelY,pixelX,pixelY);
+	}
+	if (m4alive == 1) {
+		context.drawImage(mrTian,m4x*pixelX,m4y*pixelY,pixelX,pixelY);
+	}
+  
+	// draw question marks
+	if (invisAnimation == 5) {
+	  	context.drawImage(questionWhite,(xTian-1)*pixelX,(yTian-2)*pixelY,pixelX*3,pixelY*3);
+	}
+	if (invisAnimation == 4) {
+		context.drawImage(questionBlack,(xTian-1)*pixelX,(yTian-2)*pixelY,pixelX*3,pixelY*3);
+	}
+	if (invisAnimation == 3) {
+		context.drawImage(questionWhite,(xTian-1)*pixelX,(yTian-2)*pixelY,pixelX*3,pixelY*3);
+	}
+	if (invisAnimation == 2) {
+		context.drawImage(questionBlack,(xTian-1)*pixelX,(yTian-2)*pixelY,pixelX*3,pixelY*3);
+	}
+	if (invisAnimation == 1) {
+		context.drawImage(questionWhite,(xTian-1)*pixelX,(yTian-2)*pixelY,pixelX*3,pixelY*3);
+	}
+
+	// draw wheels
+	if ((flameThrowerDone == 0) && (invisible == 0) && (enemyHitPoints > 0)) {
+		context.drawImage(wheels,xTian*pixelX,yTian*pixelY,pixelX,pixelY);
+		if ((xTian == xa) && (yTian == ya) && (enemyHitPoints > 0) && (bubbleOn == 0)) {
+			hitPoints = hitPoints - 1/30;
+		}
+	}
+	if ((backStabDone == 1) && (invisible == 0) && (enemyHitPoints > 0)) {
+		context.drawImage(wheels,xTian*pixelX,yTian*pixelY,pixelX,pixelY);
+		if ((xTian == xa) && (yTian == ya) && (enemyHitPoints > 0) && (bubbleOn == 0)) {
+			hitPoints = hitPoints - 1/30;
+		}
+	}
+
+	// draw main character
+	if (localStorage.choice1 === "door") {
+		if (hitPoints > 0) {
+			context.drawImage(main,xa*pixelX,ya*pixelY,pixelX,pixelY);
+		} else {
+			context.drawImage(grave,xa*pixelX,ya*pixelY,pixelX,pixelY);
+		}
+	}
+
+	// draw main character if rose was chosen
+	if ((faceDirection === directions[0]) && (hitPoints > 0)) {
+		context.drawImage(mainN,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+	if ((faceDirection === directions[1]) && (hitPoints > 0)) {
+		context.drawImage(mainS,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+	if ((faceDirection === directions[2]) && (hitPoints > 0)) {
+		context.drawImage(mainE,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+	if ((faceDirection === directions[3]) && (hitPoints > 0)) {
+		context.drawImage(mainW,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+	
+	// draw backStab
+	if (backStabPhase == 3) {
+		context.drawImage(knife,xTian*pixelX,yTian*pixelY,pixelX,pixelY);
+	}
+
+	// draw bubble
+	if (bubbleOn == 1) {
+		context.drawImage(bubble,xa*pixelX,ya*pixelY,pixelX,pixelY);
+	}
+
+	//draw virtualmc
+	if (toSuperJump == 1) {
+		context.drawImage(virtualmc,xb*pixelX,yb*pixelY,pixelX,pixelY);
+	}
+
+	//draw water gun
+	if (waterLoad == 1) {
+		xb = xa;
+		yb = ya;
+		context.drawImage(waterGun,xb*pixelX,yb*pixelY,pixelX,pixelY);
+	}
+
+	// draw flames of flamethrower
+	for (var i=0;i<fireTiles.length;i++) {
+		context.drawImage(fire,fireTiles[i].fireX*pixelX,fireTiles[i].fireY*pixelY,pixelX,pixelY);
+		if((fireTiles[i].fireX==xa) && (fireTiles[i].fireY==ya) && (bubbleOn == 0)) {
+        			hitPoints = hitPoints - (1/30);
+		}
+	}
+
+	// draw explosion
+	if (bombEffectTimer > 0) {
+		context.drawImage(explosion,bombX*pixelX,bombY*pixelY,pixelX*3,pixelY*3);
+	}
+
+	// draw crits
+	if ((bulletOut > 0) && ((turnL >= 4) || (turnR >= 4))) {
+		if (bulletNSEW === "N") {
+			for (i = ya - 1; i > 2; i--) {
+				context.drawImage(fire,xa*pixelX,i*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+			critShot = 1;
+		}
+		if (bulletNSEW === "S") {
+			for (i = ya + 1; i < 28; i++) {
+				context.drawImage(fire,xa*pixelX,i*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+			critShot = 1;
+		}
+		if (bulletNSEW === "E") {
+			for (i = xa - 1; i >= 0; i--) {
+				context.drawImage(fire,i*pixelX,ya*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+			critShot = 1;
+		}
+		if (bulletNSEW === "W") {
+			for (i = xa + 1; i < 29; i++) {
+				context.drawImage(fire,i*pixelX,ya*pixelY,pixelX,pixelY);
+				bulletOut = bulletOut - 1;
+			}
+			critShot = 1;
+		}
+	}
+
+	// draw bullets
+	if ((bulletOut > 0) && (critShot == 0) && ((turnL <= 3) && (turnR <= 3))) {
+		if (bulletNSEW === "N") {
+			for (i = ya - 1; i > 2; i--) {
+				context.drawImage(water,xa*pixelX,i*pixelY,pixelX,pixelY);
+				if ((m1alive == 1) && (m1x == xa) && (m1y == i)) {
+					m1alive = 0;
+				}
+				if ((m2alive == 1) && (m2x == xa) && (m2y == i)) {
+					m2alive = 0;
+				}
+				if ((m3alive == 1) && (m3x == xa) && (m3y == i)) {
+					m3alive = 0;
+				}
+				if ((m4alive == 1) && (m4x == xa) && (m4y == i)) {
+					m4alive = 0;
+				}
+				bulletOut = bulletOut - 1;
+			}
+		}
+		if (bulletNSEW === "S") {
+			for (i = ya + 1; i < 28; i++) {
+				context.drawImage(water,xa*pixelX,i*pixelY,pixelX,pixelY);
+				if ((m1alive == 1) && (m1x == xa) && (m1y == i)) {
+					m1alive = 0;
+				}
+				if ((m2alive == 1) && (m2x == xa) && (m2y == i)) {
+					m2alive = 0;
+				}
+				if ((m3alive == 1) && (m3x == xa) && (m3y == i)) {
+					m3alive = 0;
+				}
+				if ((m4alive == 1) && (m4x == xa) && (m4y == i)) {
+					m4alive = 0;
+				}
+				bulletOut = bulletOut - 1;
+			}
+		}
+		if (bulletNSEW === "E") {
+			for (i = xa - 1; i >= 0; i--) {
+				context.drawImage(water,i*pixelX,ya*pixelY,pixelX,pixelY);
+				if ((m1alive == 1) && (m1x == i) && (m1y == ya)) {
+					m1alive = 0;
+				}
+				if ((m2alive == 1) && (m2x == i) && (m2y == ya)) {
+					m2alive = 0;
+				}
+				if ((m3alive == 1) && (m3x == i) && (m3y == ya)) {
+					m3alive = 0;
+				}
+				if ((m4alive == 1) && (m4x == i) && (m4y == ya)) {
+					m4alive = 0;
+				}
+				bulletOut = bulletOut - 1;
+			}
+		}
+		if (bulletNSEW === "W") {
+			for (i = xa + 1; i < 29; i++) {
+				context.drawImage(water,i*pixelX,ya*pixelY,pixelX,pixelY);
+				if ((m1alive == 1) && (m1x == i) && (m1y == ya)) {
+					m1alive = 0;
+				}
+				if ((m2alive == 1) && (m2x == i) && (m2y == ya)) {
+					m2alive = 0;
+				}
+				if ((m3alive == 1) && (m3x == i) && (m3y == ya)) {
+					m3alive = 0;
+				}
+				if ((m4alive == 1) && (m4x == i) && (m4y == ya)) {
+					m4alive = 0;
+				}
+				bulletOut = bulletOut - 1;
+			}
+		}
+	}
+
+	// music
+	// if (typeof music.loop == 'boolean') {
+	// 	music.loop = true;
+	// 	music.volume = 0.7;
+	// } else {
+	// 	music.addEventListener('ended', function() {
+	// 		music.currentTime = 0;
+	// 		music.play();
+	// 	}, false);
+	// }
+	// music.play();
+  
+	// draw player death text
+	if (hitPoints <= 0) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("You died. Press R to restart.", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	}
+
+	// win text
+	if ((deathScript == 1) && (enemyHitPoints <= 0) && (hitPoints > 0)) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("You beat me! Impossible!", (10 / 20) * pixelX, (585 / 20) * pixelY);		
+	}
+	if ((deathScript == 2) && (enemyHitPoints <= 0) && (hitPoints > 0)) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("I DEADENING?!", (10 / 20) * pixelX, (585 / 20) * pixelY);		
+	}
+	if ((deathScript == 3) && (enemyHitPoints <= 0) && (hitPoints > 0)) {	
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("Oh well.", (10 / 20) * pixelX, (585 / 20) * pixelY);	
+	}
+	if ((deathScript == 4) && (enemyHitPoints <= 0) && (hitPoints > 0)) {	
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("That's fine.", (10 / 20) * pixelX, (585 / 20) * pixelY);	
+	}
+	if ((deathScript == 5) && (enemyHitPoints <= 0) && (hitPoints > 0)) {	
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("I'm immortal anyway.", (10 / 20) * pixelX, (585 / 20) * pixelY);	
+	}
+	if ((deathScript == 6) && (enemyHitPoints <= 0) && (hitPoints > 0)) {	
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("You'll see.", (10 / 20) * pixelX, (585 / 20) * pixelY);	
+	}
+	if ((deathScript == 7) && (enemyHitPoints <= 0) && (hitPoints > 0)) {
+		localStorage.setItem("mercy1","killed");
+		loadFrame = loadTime % 4;
+		if (loadFrame == 0) {
+			context.drawImage(frame1,0,0,myWidth,myHeight);
+		} else if  (loadFrame == 1) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		} else if (loadFrame == 2) {
+			context.drawImage(frame3,0,0,myWidth,myHeight);
+		} else if (loadFrame == 3) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		}
+		location.replace("./bry.html");
+	}
+
+	// mercy text
+	if ((mercy == 90) && (enemyHitPoints >= 15) && (hitPoints > 0)) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("Thanks for the mercy.", (10 / 20) * pixelX, (585 / 20) * pixelY);		
+	}
+	if ((mercy == 91) && (enemyHitPoints >= 15) && (hitPoints > 0)) {
+		context.fillStyle = "black";
+		context.font = "20px Gill Sans MT";
+		context.fillText("I'll let you go.", (10 / 20) * pixelX, (585 / 20) * pixelY);		
+	}
+	if ((mercy >= 92) && (enemyHitPoints >= 15) && (hitPoints > 0)) {
+		localStorage.setItem("mercy1","spared");
+		loadFrame = loadTime % 4;
+		if (loadFrame == 0) {
+			context.drawImage(frame1,0,0,myWidth,myHeight);
+		} else if  (loadFrame == 1) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		} else if (loadFrame == 2) {
+			context.drawImage(frame3,0,0,myWidth,myHeight);
+		} else if (loadFrame == 3) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		}
+		location.replace("./bry.html");	
+	}
+}
+
+function physics() {
+	// end crits
+	if (((turnL >= 4) || (turnR >= 4)) && (critShot == 1) && (bulletOut <= 0)) {
+		turnL = 0;
+		turnR = 0;
+		critShot = 0;
+	}
+
+	// extra damage for crits
+		if ((hitPoints > 0) && (faceDirection === directions[0]) && (critShot == 1)) {
+			if ((xa == xTian) && ((ya >= yTian) || (ya >= yTian - 1))) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+		}
+		if ((hitPoints > 0) && (faceDirection === directions[1]) && (critShot == 1)) {
+			if ((xa == xTian) && ((ya <= yTian) || (ya <= yTian - 1))) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+		}
+		if ((hitPoints > 0) && (faceDirection === directions[2]) && (critShot == 1)) {
+			if (((ya == yTian) || (ya == yTian - 1)) && (xa >= xTian)) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+		}
+		if ((hitPoints > 0) && (faceDirection === directions[3]) && (critShot == 1)) {
+			if (((ya == yTian) || (ya == yTian - 1)) && (xa <= xTian)) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+		}
+
+	// keep Mr Tian in the box
+	if (yTian <= 3) {
+		yTian = 3;
+	}
+	if (yTian >= 27) {
+		yTian = 27;
+	}
+	if (xTian <= 0) {
+		xTian = 0;
+	}
+	if (xTian >= 28) {
+		xTian = 28;
+	}
+
+	if ((dw1 == 0) && (toSuperJump == 0)) {
+		xb = xa;
+		yb = ya;
+	}
+
+	if ((xa == xb) && (ya == yb) && (ws == 0)) {
+		ws = 1;
+		dw1 = 0;
+	}
+  
+  
+	// super jump
+	if ((dw1 == 0) && (toSuperJump == 0)) {
+		xb = xa;
+		yb = ya;
+	}
+
+	// drone
+	if ((xa == xb) && (ya == yb) && (ws == 0)) {
+		ws = 1;
+		dw1 = 0;
+	}
+
+	// health
+	if (enemyHitPoints <= 0) {
+		enemyHitPoints = 0;
+	}
+
+	if (hitPoints <= 0) {
+		hitPoints = 0;
+	}
+
+	// explosion physics
+	if (bombExploded == 1) {
+		bombX = xb - 1;
+		bombY = yb - 1;
+		bombExploded = 0;
+		boomSound.play();
+	}
+
+	if (bombEffectTimer > 0) {
+		bombEffectTimer = bombEffectTimer - 1;
+	}
+
+	// bubble pops after 5 seconds
+	if ((bubbleTime == 0) && (bubbleOn = 1)) {
+		bubbleOn = 0;
+	}
+}
+
+function vel(event) {
+	var button = event.keyCode;
+	if (((button == 83) && (ya <= 26)) && (hitPoints > 0) && (bubbleOn == 0)) {
+		ya = ya + 1;
+	}
+	if (((button == 87) && (ya >= 4)) && (hitPoints > 0) && (bubbleOn == 0)) {
+		ya = ya - 1;
+	}
+	if (((button == 68) && (xa <= 27)) && (hitPoints > 0) && (bubbleOn == 0)) {
+		xa = xa + 1;
+	}
+	if (((button == 65) && (xa >= 1)) && (hitPoints > 0) && (bubbleOn == 0)) {
+		xa = xa - 1;
+	}
+
+	if (localStorage.choice1 === "rose") {
+		// facing which direction
+		if (button == 73) {
+			if (faceDirection === directions[2]) {
+				turnR = turnR + 1;
+				turnL = 0;
+				faceDirection = directions[0];
+			} else if (faceDirection === directions[3]) {
+				turnL = turnL + 1;
+				turnR = 0;
+				faceDirection = directions[0];
+			} else {
+				turnL = 0;
+				turnR = 0;
+				faceDirection = directions[0];
+			}
+		}
+		if (button == 75) {
+			if (faceDirection === directions[3]) {
+				turnR = turnR + 1;
+				turnL = 0;
+				faceDirection = directions[1];
+			} else if (faceDirection === directions[2]) {
+				turnL = turnL + 1;
+				turnR = 0;
+				faceDirection = directions[1];
+			} else {
+				turnL = 0;
+				turnR = 0;
+				faceDirection = directions[1];
+			}
+		}
+		if (button == 74) {
+			if (faceDirection === directions[1]) {
+				turnR = turnR + 1;
+				turnL = 0;
+				faceDirection = directions[2];
+			} else if (faceDirection === directions[0]) {
+				turnL = turnL + 1;
+				turnR = 0;
+				faceDirection = directions[2];
+			} else {
+				turnL = 0;
+				turnR = 0;
+				faceDirection = directions[2];
+			}
+		}
+		if (button == 76) {
+			if (faceDirection === directions[0]) {
+				turnR = turnR + 1;
+				turnL = 0;
+				faceDirection = directions[3];
+			} else if (faceDirection === directions[1]) {
+				turnL = turnL + 1;
+				turnR = 0;
+				faceDirection = directions[3];
+			} else {
+				turnL = 0;
+				turnR = 0;
+				faceDirection = directions[3];
+			}
+		}
+
+		// sniper
+		if ((button == 72) && (hitPoints > 0) && (faceDirection === directions[0]) && (reload >= 5)) {
+			if ((xa == xTian) && ((ya >= yTian) || (ya >= yTian - 1))) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "N";
+			reload = 0;
+		}
+		if ((button == 72) && (hitPoints > 0) && (faceDirection === directions[1]) && (reload >= 5)) {
+			if ((xa == xTian) && ((ya <= yTian) || (ya <= yTian - 1))) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "S";
+			reload = 0;
+		}
+		if ((button == 72) && (hitPoints > 0) && (faceDirection === directions[2]) && (reload >= 5)) {
+			if (((ya == yTian) || (ya == yTian - 1)) && (xa >= xTian)) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "E";
+			reload = 0;
+		}
+		if ((button == 72) && (hitPoints > 0) && (faceDirection === directions[3]) && (reload >= 5)) {
+			if (((ya == yTian) || (ya == yTian - 1)) && (xa <= xTian)) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "W";
+			reload = 0;
+		}
+		// end of sniper
+	}
+
+	if (localStorage.choice1 === "door") {
+		//weapon 1
+		if (button == 49) {
+			if (dw1 == 0) {
+				dw1 = 1;
+				droneDeployed.play();
+			}
+		}
+		if (button == 81) {
+			if (((xa != xb) || (ya != yb)) && (ws == 1) && (bubbleOn == 0)) 	{
+			ws = 0;
+			bombEffectTimer = 10;
+			bombExploded = 1;
+			if (((xb >= xa - 1) && (xb <= xa + 1)) && ((yb >= ya - 1) && (yb <= ya + 1))) {
+				hitPoints = hitPoints - 1;
+					}
+			if (((yb >= yTian - 2) && (yb <= yTian + 1)) && ((xb >= xTian - 1) &&	 (xb <= xTian + 1))) {
+				enemyHitPoints = enemyHitPoints - 1.5;
+				}
+			}
+		}
+		if (((button == 75) && (yb <= 26)) && (hitPoints > 0) && (bubbleOn == 0) && (toSuperJump == 0)) {
+			yb = yb + 1;
+		}
+		if (((button == 73) && (yb >= 4)) && (hitPoints > 0) && (bubbleOn == 0) && (toSuperJump == 0)) {
+		yb = yb - 1;
+		}
+		if (((button == 76) && (xb <= 27)) && (hitPoints > 0) && (bubbleOn == 0) && (toSuperJump == 0)) {
+			xb = xb + 1;
+			}
+		if (((button == 74) && (xb >= 1)) && (hitPoints > 0) && (bubbleOn == 0) && (toSuperJump == 0)) {
+			xb = xb - 1;
+		}
+		// end of weapon 1
+
+		// weapon 2
+		if (button == 50) {
+			toSuperJump = 1;
+			waterLoad = 0;
+		}
+		if (((button == 75) && (yb <= 26)) && (hitPoints > 0) && (bubbleOn == 0) && (toSuperJump == 1)) {
+			yb = yb + 1;
+		}
+		if (((button == 73) && (yb >= 4)) && (hitPoints > 0) && (bubbleOn == 0) && (toSuperJump == 1)) {
+			yb = yb - 1;
+		}
+		if (((button == 76) && (xb <= 27)) && (hitPoints > 0) && (bubbleOn == 0) && (toSuperJump == 1)) {
+			xb = xb + 1;
+		}
+		if (((button == 74) && (xb >= 1)) && (hitPoints > 0) && (bubbleOn == 0) && (toSuperJump == 1)) {
+			xb = xb - 1;
+		}
+		if ((button == 32) && (toSuperJump == 1)) {
+			xa = xb;
+			ya = yb;
+			toSuperJump = 0;
+		}
+		// end of weapon 2
+
+		// weapon 3
+		if ((button == 51) && (hitPoints > 0)) {
+			toSuperJump = 0;
+			waterLoad = 1;
+		}
+		if ((button == 73) && (waterLoad == 1) && (hitPoints > 0)) {
+			if ((xa == xTian) && ((ya >= yTian) || (ya >= yTian - 1))) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "N";
+		}
+		if ((button == 75) && (waterLoad == 1) && (hitPoints > 0)) {
+			if ((xa == xTian) && ((ya <= yTian) || (ya <= yTian - 1))) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "S";
+		}
+		if ((button == 74) && (waterLoad == 1) && (hitPoints > 0)) {
+			if (((ya == yTian) || (ya == yTian - 1)) && (xa >= xTian)) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "E";
+		}
+		if ((button == 76) && (waterLoad == 1) && (hitPoints > 0)) {
+			if (((ya == yTian) || (ya == yTian - 1)) && (xa <= xTian)) {
+				enemyHitPoints = enemyHitPoints - 0.5;
+			}
+			waterLoad = 0;
+			bulletOut = 30;
+			bulletNSEW = "W";
+		}
+		// end of weapon 3
+
+		// shield a.k.a. bubble
+		if (button == 66) {
+			if (bubbleOn == 0) {
+				bubbleOn = 1;
+				bubbleTime = 5;
+			} else {
+				bubbleOn = 0;
+			}
+		}
+		// end of shield
+	}
+
+	// restart mechanism
+	if (button == 82) {
+		xa = 14;
+		ya = 14;
+		xb = 14;
+		yb = 14;
+		ws = 1;
+		dw1 = 0;
+		hitPoints = 20;
+		toSuperJump = 0;
+		waterLoad = 0;
+		turnL = 0;
+		turnR = 0;
+		if (localStorage.choice1 === "rose") {
+			faceDirection = 'N';
+		}
+		critShot = 0;
+		bubbleOn = 0;
+		bubbleTime = 0;
+		xTian = 14;
+		yTian = 5;
+		steps = 20;
+		enemyHitPoints = 30;
+		impSpeech = 0;
+		invisible = 0;
+		invisAnimation = 0;
+		invisTimer = 0;
+		bikeDone = 0;
+		backStabStep = 0;
+		backStabPhase = 0;
+		backStabActivate = 0;
+		backStabDone = 1;
+		flameThrowerDone = 1;
+		flameThrowerTimer = 0;
+		fireTiles = [];
+		mercy = 0;
+	}
+	// end of restart mechanism
+}
+
+function loadingScreen() {
+	loadTime += 1;
+}
+		</script>
+	</body>
+</html>

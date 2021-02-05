@@ -1,0 +1,140 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="Keywords" content="autobiographical, HTML, JavaScript, game, shootbiography, Some Autobiography Im Trying to Make, fun, for Kids, for Adults, Online, shooter, 2d, browser games, browser, website, play, play now, canvas">
+		<meta name="Description" content="Welcome to Shootbiography! This is a game about Dos and his life. This is autobiographical. It is fun! It is for kids and adults! PLAY NOW!!!">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Shootbiography | Some Autobiography I'm Trying to Make</title>
+	</head>
+	<body>
+		<style>body{margin:0;}</style>
+		<canvas id='ltpcanvas'></canvas>
+	</body>
+	<script>
+	window.onload = function(){
+		init();
+		window.addEventListener('resize', init,false);
+	};
+	function init(){
+		var ltpc = document.getElementById('ltpcanvas');
+		var context = ltpc.getContext('2d');
+		var myWidth = window.innerWidth;
+		var myHeight = window.innerHeight;
+		context.canvas.width = myWidth;
+		context.canvas.height = myHeight;
+		context.fillStyle = '#000000';
+		context.fillRect(0,0,myWidth,myHeight);
+	}
+
+	setInterval(disp, 1000/30);
+
+	var ltpc = document.getElementById('ltpcanvas');
+	var context = ltpc.getContext('2d');
+	var myWidth = window.innerWidth;
+	var myHeight = window.innerHeight;
+
+var ltpc = document.getElementById('ltpcanvas');
+var context = ltpc.getContext('2d');
+var myWidth = window.innerWidth;
+var myHeight = window.innerHeight;
+
+var say = 0;
+var loadTime = 1;
+var loadFrame = loadTime % 3;
+
+var frame1 = new Image();
+frame1.src = 'pictures/loading1.png';
+var frame2 = new Image();
+frame2.src = 'pictures/loading2.png';
+var frame3 = new Image();
+frame3.src = 'pictures/loading3.png';
+
+document.addEventListener("keydown",vel);
+setInterval(disp,1000/30);
+setInterval(loadingScreen,1000/4);
+
+function disp() {
+	context.fillStyle = "grey";
+	context.fillRect(0,0,myWidth,myHeight);
+
+	// start of script
+	if (say == 0) {
+		context.fillStyle = "black";
+		context.font = "30px Gill Sans MT";
+		context.fillText("Keep Pressing the Down Button", 10, 50);
+		context.fillText("to Read Messages", 10, 90);
+	}
+	if (say == 1) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("Welcome to Shootbiography!", 10, 50);
+	}
+	if (say == 2) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("I've planned the ultimate party", 10, 50);
+	}
+	if (say == 3) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("and you're invited.", 10, 50);
+	}
+	if (say == 4) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("The venue is in the center of my mind.", 10, 50);
+	}
+	if (say == 5) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("It's quite the distance, so I'll take you there.", 10, 50);
+	}
+	if (say == 6) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("But first, I'll need to explain some things.", 10, 50);
+	}
+	if (say == 7) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("It's about how to do stuff in my head.", 10, 50);
+	}
+	if (say == 8) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("It's a lot to take in, but you'll need to know", 10, 50);
+		context.fillText("these to get in.", 10, 90);
+	}
+	if (say == 9) {
+		context.fillStyle = "white";
+		context.font = "30px Gill Sans MT";
+		context.fillText("It's about how to use some stuff that I'll", 10, 50);
+		context.fillText("give you in a moment.", 10, 90);
+	}
+	if (say >= 10) {
+		loadFrame = loadTime % 3;
+		if (loadFrame == 0) {
+			context.drawImage(frame1,0,0,myWidth,myHeight);
+		} else if  (loadFrame == 1) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		} else if (loadFrame == 2) {
+			context.drawImage(frame3,0,0,myWidth,myHeight);
+		}
+		location.replace("tutorial.html");
+	}
+	// end of script
+}
+
+function loadingScreen() {
+	loadTime += 1;
+}
+
+function vel(event) {
+	var button = event.keyCode;
+	if (button == 40) {
+		say = say + 1;
+	}
+}
+	</script>
+</html>

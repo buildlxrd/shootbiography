@@ -1,0 +1,184 @@
+<html>
+	<head>
+		<title>Some Autobiography I'm Trying to make</title>
+	</head>
+	<body>
+		<style>body{margin:0;}</style>
+		<canvas id='ltpcanvas'></canvas>
+			<script>
+window.onload = function(){
+	init();
+	window.addEventListener('resize', init,false);
+};
+function init(){
+	var ltpc = document.getElementById('ltpcanvas');
+	var context = ltpc.getContext('2d');
+	var myWidth = window.innerWidth;
+	var myHeight = window.innerHeight;
+	context.canvas.width = myWidth;
+	context.canvas.height = myHeight;
+	context.fillStyle = '#000000';
+	context.fillRect(0,0,myWidth,myHeight);
+}
+
+var ltpc = document.getElementById('ltpcanvas');
+var context = ltpc.getContext('2d');
+var myWidth = window.innerWidth;
+var myHeight = window.innerHeight;
+
+var pixelX = myWidth * (20 / 580);
+var pixelY = myHeight * (20 / 640);
+
+//variables concerning player
+var xa = 14;
+var ya = 14;
+var xb = 14;
+var yb = 14;
+var ws = 1;
+var dw1 = 0;
+var hitPoints = 20;
+var toSuperJump = 0;
+var inPit = 0;
+var waterLoad = 0;
+
+// variables concerning bubble
+var bubbleOn = 0;
+var bubbelTime = 0;
+
+// variables concerning enemy
+var enemyHitPoints = 50;
+var bombEffectTimer = 0;
+var bombExploded = 0;
+var enemyOffended = 0;
+var enemyWatch = 0;
+var deathWatch = 0;
+var dead = 0;
+var retainSavage = 0;
+var enemyAction;
+var moves = ["Fire and Ice","Teleportation","Disco Ball","Pit Fall"];
+var nextMove;
+var enemyDoing;
+
+// variables concerning explosions
+var bombX;
+var bombY;
+var bombExploded = 0;
+
+// variables concerning water gun bullets
+var bulletOut = 0;
+var bulletNSEW;
+
+// variables concerning fire and ice
+var fireX;
+var fireY;
+var droneOnFire = 0;
+var droneIced = 0;
+var fireBlock = [];
+
+// variables concerning pits
+var pitX;
+var pitY;
+var pitPlaces = [];
+
+// main character
+var main = new Image();
+main.src = 'pictures/mc.png';
+// text box
+var textBox= new Image();
+textBox.src = 'pictures/textBox.png';
+// rose
+var rose = new Image();
+rose.src = 'pictures/rose.png';
+// door
+var door = new Image();
+door.src = 'pictures/door.png';
+
+//variables concerning loading screen
+var loadTime = 1;
+var loadFrame = loadTime % 3;
+var frame1 = new Image();
+frame1.src = 'pictures/loading1.png';
+var frame2 = new Image();
+frame2.src = 'pictures/loading2.png';
+var frame3 = new Image();
+frame3.src = 'pictures/loading3.png';
+
+document.addEventListener("keydown",vel);
+setInterval(disp,1000/30);
+setInterval(physics,1000/30);
+setInterval(loadingScreen,1000/4);
+
+function disp() {
+	context.fillStyle = "grey";
+	context.fillRect(0,0,myWidth,myHeight);
+
+	// draw text box
+	context.drawImage(textBox,0,(560 / 640) * myHeight,myWidth,(80 / 640) * myHeight);
+
+	// draw rose
+	context.drawImage(rose,14 * pixelX,5 * pixelY,pixelX,pixelY);
+
+	// draw door
+	context.drawImage(door,14*pixelX,24*pixelY,pixelX,pixelY);
+
+	// draw main character
+	context.drawImage(main,xa*pixelX,ya*pixelY,pixelX,pixelY);
+
+	// instructions
+	context.fillStyle = "red";
+	context.font = "20px Gill Sans MT";
+	context.fillText("Go to rose for one powerful weapon", (10 / 20) * pixelX, (585 / 20) * pixelY);
+	context.fillStyle = "black";
+	context.font = "20px Gill Sans MT";
+	context.fillText("Go to door to enhance current weapons", (10 / 20) * pixelX, (605 / 20) * pixelY);
+}
+
+function physics() {
+	if ((xa == 14) && (ya == 5)) {
+		loadFrame = loadTime % 3;
+		if (loadFrame == 0) {
+			context.drawImage(frame1,0,0,myWidth,myHeight);
+		} else if  (loadFrame == 1) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		} else if (loadFrame == 2) {
+			context.drawImage(frame3,0,0,myWidth,myHeight);
+		}
+		localStorage.setItem("choice1","rose");
+		location.replace("./tutorialSniper.html");
+	}
+	if ((xa == 14) && (ya == 24)) {
+		loadFrame = loadTime % 3;
+		if (loadFrame == 0) {
+			context.drawImage(frame1,0,0,myWidth,myHeight);
+		} else if  (loadFrame == 1) {
+			context.drawImage(frame2,0,0,myWidth,myHeight);
+		} else if (loadFrame == 2) {
+			context.drawImage(frame3,0,0,myWidth,myHeight);
+		}
+		localStorage.setItem("choice1","door");
+		location.replace("./mercy.html");
+	}
+}
+
+function vel(event) {
+	var button = event.keyCode;
+	if (((button == 83) && (ya <= 26)) && (hitPoints > 0) && (bubbleOn == 0) && (inPit == 0)) {
+		ya = ya + 1;
+	}
+	if (((button == 87) && (ya >= 4)) && (hitPoints > 0) && (bubbleOn == 0) && (inPit == 0)) {
+		ya = ya - 1;
+	}
+	if (((button == 68) && (xa <= 27)) && (hitPoints > 0) && (bubbleOn == 0) && (inPit == 0)) {
+		xa = xa + 1;
+	}
+	if (((button == 65) && (xa >= 1)) && (hitPoints > 0) && (bubbleOn == 0) && (inPit == 0)) {
+		xa = xa - 1;
+	}
+}
+
+function loadingScreen() {
+	loadTime += 1;
+}
+			</script>
+	</body>
+</html>
